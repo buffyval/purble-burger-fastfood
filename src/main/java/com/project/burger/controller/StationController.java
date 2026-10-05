@@ -20,7 +20,7 @@ public class StationController {
     }
 
     public void addMeat() {
-        addIngredient(IngredientType.BEEF_PATTY);
+        addIngredient(IngredientType.PATTY);
     }
 
     public void addAddition(IngredientType ingredientType) {
