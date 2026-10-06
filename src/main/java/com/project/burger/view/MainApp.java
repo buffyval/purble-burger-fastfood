@@ -44,8 +44,17 @@ public class MainApp extends Application {
             refresh.run();
         });
 
+        // 1. Dichiarazione dei contenitori di gioco all'esterno dei listener
+        HBox centerGame = new HBox(30, chefView, burgerView);
+        centerGame.setAlignment(Pos.CENTER);
+
+        HBox bottomControls = new HBox(12, previousButton, stationsView, nextButton);
+        bottomControls.setAlignment(Pos.CENTER);
+
+        // 2. Fissare la dimensione massima dell'area dell'ordine per non spingere verso il basso
+        orderDisplayView.setMaxHeight(260);
+
         BorderPane gameLayout = new BorderPane();
-        // Rende il layout del gioco trasparente per lasciar trasparire lo sfondo sotto
         gameLayout.setBackground(Background.EMPTY);
 
         // Menu di Start Iniziale (Titolo + Pulsante centrale)
@@ -61,19 +70,12 @@ public class MainApp extends Application {
         startMenuBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.9); -fx-padding: 40; -fx-background-radius: 15;");
         startMenuBox.setMaxSize(500, 250);
 
-        // All'avvio il gioco mostra SOLO il menu di start al centro
+        // All'avvio mostra il menu al centro
         gameLayout.setCenter(startMenuBox);
 
-        // Quando si clicca "Start Game", appaiono l'ordine, lo chef, il panino e i pulsanti
+        // Quando si clicca "Start Game", si aggiungono i layout già dichiarati
         startButton.setOnAction(event -> {
             controller.handleStartGame();
-
-            // Costruzione del layout di gioco attivo
-            HBox centerGame = new HBox(30, chefView, burgerView);
-            centerGame.setAlignment(Pos.CENTER);
-
-            HBox bottomControls = new HBox(12, previousButton, stationsView, nextButton);
-            bottomControls.setAlignment(Pos.CENTER);
 
             gameLayout.setTop(orderDisplayView);
             gameLayout.setCenter(centerGame);
@@ -84,7 +86,7 @@ public class MainApp extends Application {
 
         StackPane root = new StackPane(gameLayout);
 
-        // Caricamento Sfondo della Cucina (Controlla sia /assets/ che /images/)
+        // Caricamento Sfondo della Cucina
         URL backgroundUrl = getClass().getResource("/assets/kitchen_background.png");
         if (backgroundUrl == null) {
             backgroundUrl = getClass().getResource("/images/kitchen_background.png");
