@@ -2,7 +2,6 @@ package com.project.burger.view;
 
 import com.project.burger.controller.MainController;
 import javafx.application.Application;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -15,6 +14,9 @@ import java.net.URL;
 
 public class MainApp extends Application {
 
+    private static final double GAME_WIDTH = 1000;
+    private static final double GAME_HEIGHT = 700;
+
     @Override
     public void start(Stage primaryStage) {
         MainController controller = new MainController();
@@ -22,7 +24,7 @@ public class MainApp extends Application {
         BurgerView burgerView = new BurgerView();
         ChefView chefView = new ChefView();
 
-        // TEMPORANEO: Nascondiamo il panino sul nastro finché non riallineiamo le quote Y
+        // TEMPORANEO: Nascondiamo il panino finché non riallineiamo le quote Y del nastro
         burgerView.setVisible(false);
 
         Runnable refresh = () -> {
@@ -36,14 +38,14 @@ public class MainApp extends Application {
         StationsView stationsView = new StationsView(controller.getStationController());
 
         Button previousButton = new Button("<");
-        previousButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 10 15;");
+        previousButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 8 12;");
         previousButton.setOnAction(event -> {
             controller.moveConveyorPrevious();
             refresh.run();
         });
 
         Button nextButton = new Button(">");
-        nextButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 10 15;");
+        nextButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 8 12;");
         nextButton.setOnAction(event -> {
             controller.moveConveyorNext();
             refresh.run();
@@ -52,7 +54,7 @@ public class MainApp extends Application {
         BorderPane gameLayout = new BorderPane();
         gameLayout.setBackground(Background.EMPTY);
 
-        // Menu di Start Iniziale
+        // Menu di Start Iniziale (Titolo + Pulsante centrale)
         Label titleLabel = new Label("Purble Burger Fast Food");
         titleLabel.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
@@ -69,56 +71,62 @@ public class MainApp extends Application {
 
         StackPane root = new StackPane(gameLayout);
 
-        // 1. Sfondo Schermata Start
-        setAppBackground(root, "/assets/kitchen_background.png");
+        // 1. SFONDO START FISSO (kitchen_background.png - dimensione fissa 1000x700 non flessibile)
+        setFixedAppBackground(root, "/assets/kitchen_background.png");
 
-        // 2. Azione al click su "Start Game"
+        // 2. AZIONE AL CLICK SU START GAME
         startButton.setOnAction(event -> {
             controller.handleStartGame();
 
-            // Sostituzione sfondo con la Workbench
-            setAppBackground(root, "/assets/background_workbench.png");
+            // SFONDO WORKBENCH FISSO (background_workbench.png - dimensione fissa 1000x700 non flessibile)
+            setFixedAppBackground(root, "/assets/background_workbench.png");
 
-            // --- NUOVO LAYOUT DEL BANCO DI LAVORO (WORKBENCH) ---
+            // Svuotiamo il menu di avvio al centro
+            gameLayout.setCenter(null);
 
-            // Area centrale superiore (Chef + Nastro con Panino nascosto temporaneamente)
-            HBox upperCenter = new HBox(30, chefView, burgerView);
-            upperCenter.setAlignment(Pos.CENTER);
+            // --- LAYOUT INTERFACCIA A COORDINATE ANCORATE ---
+            Pane gamePane = new Pane();
+            gamePane.setPrefSize(GAME_WIDTH, GAME_HEIGHT);
+            gamePane.setMaxSize(GAME_WIDTH, GAME_HEIGHT);
 
-            // Ridimensionamento e contenimento del Display Ordine
-            orderDisplayView.setMaxSize(200, 220);
+            // A. DISPLAY DELL'ORDINE: In basso a sinistra sulla superficie del banco
+            orderDisplayView.setMaxSize(200, 200);
+            orderDisplayView.setLayoutX(30);
+            orderDisplayView.setLayoutY(460);
 
-            // Barra dei controlli frontale (Workbench):
-            // - A sinistra: Display dell'ordine (spostato in basso sul lato del workbench)
-            // - Al centro: Frecce del nastro e Pulsanti di assemblaggio
-            HBox workbenchFront = new HBox(15);
-            workbenchFront.setAlignment(Pos.BOTTOM_CENTER);
-            workbenchFront.setPadding(new Insets(0, 10, 15, 10));
-
+            // B. GRUPPO STAZIONI + FRECCE: Al centro sulla superficie del banco
             HBox stationsWithArrows = new HBox(10, previousButton, stationsView, nextButton);
             stationsWithArrows.setAlignment(Pos.CENTER);
+            stationsWithArrows.setLayoutX(250);
+            stationsWithArrows.setLayoutY(560);
 
-            // Organizziamo il layout frontale: Display a sinistra, Stazioni al centro
-            BorderPane bottomWorkbenchBar = new BorderPane();
-            bottomWorkbenchBar.setPadding(new Insets(0, 20, 30, 20));
-            bottomWorkbenchBar.setLeft(orderDisplayView);
-            bottomWorkbenchBar.setCenter(stationsWithArrows);
-            BorderPane.setAlignment(orderDisplayView, Pos.BOTTOM_LEFT);
-            BorderPane.setAlignment(stationsWithArrows, Pos.BOTTOM_CENTER);
+            // C. CHEF + PANINO: Sul piano della cucina
+            HBox upperCenter = new HBox(30, chefView, burgerView);
+            upperCenter.setAlignment(Pos.CENTER);
+            upperCenter.setLayoutX(300);
+            upperCenter.setLayoutY(180);
 
-            gameLayout.setTop(null); // Svuotiamo la parte superiore
-            gameLayout.setCenter(upperCenter);
-            gameLayout.setBottom(bottomWorkbenchBar);
+            // Aggiungiamo i controlli al gamePane
+            gamePane.getChildren().addAll(orderDisplayView, stationsWithArrows, upperCenter);
+
+            // Inseriamo il gamePane al centro della finestra
+            gameLayout.setCenter(gamePane);
 
             refresh.run();
         });
 
         primaryStage.setTitle("Purble Burger Fast Food");
-        primaryStage.setScene(new Scene(root, 1000, 700));
+        primaryStage.setScene(new Scene(root, GAME_WIDTH, GAME_HEIGHT));
+        primaryStage.setMinWidth(GAME_WIDTH);
+        primaryStage.setMinHeight(GAME_HEIGHT);
         primaryStage.show();
     }
 
-    private void setAppBackground(Pane rootPane, String resourcePath) {
+    /**
+     * Imposta uno sfondo a dimensione fissa (1000x700) centrato, SENZA ridimensionamento
+     * all'ingrandimento della finestra.
+     */
+    private void setFixedAppBackground(Pane rootPane, String resourcePath) {
         URL backgroundUrl = getClass().getResource(resourcePath);
         if (backgroundUrl == null && resourcePath.contains("/assets/")) {
             backgroundUrl = getClass().getResource(resourcePath.replace("/assets/", "/images/"));
@@ -126,17 +134,23 @@ public class MainApp extends Application {
 
         if (backgroundUrl != null) {
             Image backgroundImage = new Image(backgroundUrl.toExternalForm());
-            BackgroundSize bgSize = new BackgroundSize(1000, 700, false, false, false, true);
+
+            // Dimensione fissa 1000x700 (widthAsPercentage=false, heightAsPercentage=false, contain=false, cover=false)
+            BackgroundSize fixedSize = new BackgroundSize(
+                    GAME_WIDTH, GAME_HEIGHT, false, false, false, false);
 
             rootPane.setBackground(new Background(new BackgroundImage(
                     backgroundImage,
                     BackgroundRepeat.NO_REPEAT,
                     BackgroundRepeat.NO_REPEAT,
                     BackgroundPosition.CENTER,
-                    bgSize)));
+                    fixedSize)));
         } else {
             rootPane.setStyle("-fx-background-color: #f4f4f4;");
         }
     }
 
+    public static void main(String[] args) {
+        launch(args);
+    }
 }
