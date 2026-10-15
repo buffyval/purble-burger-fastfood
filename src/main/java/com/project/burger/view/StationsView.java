@@ -63,7 +63,7 @@ public class StationsView extends HBox {
         Button[] buttons = new Button[BreadShape.values().length];
         for (int i = 0; i < buttons.length; i++) {
             BreadShape shape = BreadShape.values()[i];
-            buttons[i] = createImageButton("/assets/top_bun_" + shape.name().toLowerCase() + ".png", 30);
+            buttons[i] = createImageButton("/assets/bun_" + shape.name().toLowerCase() + "_top.png", 30);
             buttons[i].setOnAction(event -> controller.applyShape(shape));
         }
         return buttons;
@@ -111,7 +111,7 @@ public class StationsView extends HBox {
             button.setGraphic(imageView);
         } else {
             String name = resourcePath.substring(resourcePath.lastIndexOf('/') + 1)
-                    .replace(".png", "").replace("ingredient_", "").replace("top_bun_", "");
+                    .replace(".png", "").replace("ingredient_", "").replace("bun_", "_top");
             button.setText(name);
         }
         button.setStyle("-fx-cursor: hand; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 4;");

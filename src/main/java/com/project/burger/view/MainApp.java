@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import java.net.URL;
 
 public class MainApp extends Application {
+
     @Override
     public void start(Stage primaryStage) {
         MainController controller = new MainController();
@@ -44,15 +45,14 @@ public class MainApp extends Application {
             refresh.run();
         });
 
-        // 1. Dichiarazione dei contenitori di gioco all'esterno dei listener
+        // Contenitori del gioco attivo
         HBox centerGame = new HBox(30, chefView, burgerView);
         centerGame.setAlignment(Pos.CENTER);
 
         HBox bottomControls = new HBox(12, previousButton, stationsView, nextButton);
         bottomControls.setAlignment(Pos.CENTER);
 
-        // 2. Fissare la dimensione massima dell'area dell'ordine per non spingere verso il basso
-        orderDisplayView.setMaxHeight(260);
+        orderDisplayView.setMaxHeight(220);
 
         BorderPane gameLayout = new BorderPane();
         gameLayout.setBackground(Background.EMPTY);
@@ -70,13 +70,22 @@ public class MainApp extends Application {
         startMenuBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.9); -fx-padding: 40; -fx-background-radius: 15;");
         startMenuBox.setMaxSize(500, 250);
 
-        // All'avvio mostra il menu al centro
+        // All'avvio il gioco mostra il menu di start al centro
         gameLayout.setCenter(startMenuBox);
 
-        // Quando si clicca "Start Game", si aggiungono i layout già dichiarati
+        StackPane root = new StackPane(gameLayout);
+
+        // 1. SFONDO INIZIALE DELLA SCHERMATA DI START (kitchen_background.png)
+        setAppBackground(root, "/assets/kitchen_background.png");
+
+        // 2. AZIONE AL CLICK SU START: Cambio dello sfondo in background_workbench.png + Caricamento gioco
         startButton.setOnAction(event -> {
             controller.handleStartGame();
 
+            // Sostituisce lo sfondo con quello del tavolo da lavoro
+            setAppBackground(root, "/assets/background_workbench.png");
+
+            // Mostra i componenti di gioco nel layout
             gameLayout.setTop(orderDisplayView);
             gameLayout.setCenter(centerGame);
             gameLayout.setBottom(bottomControls);
@@ -84,29 +93,33 @@ public class MainApp extends Application {
             refresh.run();
         });
 
-        StackPane root = new StackPane(gameLayout);
+        primaryStage.setTitle("Purble Burger Fast Food");
+        primaryStage.setScene(new Scene(root, 1000, 700));
+        primaryStage.show();
+    }
 
-        // Caricamento Sfondo della Cucina
-        URL backgroundUrl = getClass().getResource("/assets/kitchen_background.png");
-        if (backgroundUrl == null) {
-            backgroundUrl = getClass().getResource("/images/kitchen_background.png");
+    /**
+     * Helper per impostare o cambiare dinamicamente lo sfondo dello StackPane root
+     */
+    private void setAppBackground(Pane rootPane, String resourcePath) {
+        URL backgroundUrl = getClass().getResource(resourcePath);
+        if (backgroundUrl == null && resourcePath.contains("/assets/")) {
+            backgroundUrl = getClass().getResource(resourcePath.replace("/assets/", "/images/"));
         }
 
         if (backgroundUrl != null) {
             Image backgroundImage = new Image(backgroundUrl.toExternalForm());
-            root.setBackground(new Background(new BackgroundImage(
+            BackgroundSize bgSize = new BackgroundSize(1000, 700, false, false, false, true);
+
+            rootPane.setBackground(new Background(new BackgroundImage(
                     backgroundImage,
                     BackgroundRepeat.NO_REPEAT,
                     BackgroundRepeat.NO_REPEAT,
                     BackgroundPosition.CENTER,
-                    new BackgroundSize(1.0, 1.0, true, true, false, true))));
+                    bgSize)));
         } else {
-            root.setStyle("-fx-background-color: #f4f4f4;");
+            System.err.println("Immagine di sfondo non trovata: " + resourcePath);
         }
-
-        primaryStage.setTitle("Purble Burger Fast Food");
-        primaryStage.setScene(new Scene(root, 1000, 700));
-        primaryStage.show();
     }
 
     public static void main(String[] args) {

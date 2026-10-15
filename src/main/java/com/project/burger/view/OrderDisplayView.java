@@ -5,6 +5,7 @@ import com.project.burger.model.IngredientType;
 import com.project.burger.model.Order;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -12,34 +13,36 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OrderDisplayView extends BorderPane {
 
-    // PARAMETRI DEL PANINO (Modificabili a piacimento)
-    private static final double STANDARD_WIDTH = 200;
+    // PARAMETRI REGOLABILI PER LA DIMENSIONE GENERALE
+    private static final double STANDARD_WIDTH = 130;
     private static final double BUN_HEIGHT = 100;
     private static final double INGREDIENT_HEIGHT = 100;
-    private static final double BAGUETTE_PIECE_WIDTH = 90;
+    private static final double BAGUETTE_PIECE_WIDTH = 130;
     private static final int STAR_COUNT = 5;
 
-    // Spacing fortemente negativo per unire visivamente le fette
-    private final VBox orderBox = new VBox(-84);
+    // Spacing verticale base della VBox
+    private final VBox orderBox = new VBox(-80);
     private final Label[] stars = new Label[STAR_COUNT];
 
     public OrderDisplayView() {
-        setPadding(new Insets(25, 0, 0, 30));
+        setPadding(new Insets(20, 0, 0, 25));
         orderBox.setAlignment(Pos.CENTER);
 
-        // Fissa la dimensione massima del riquadro dell'ordine
-        orderBox.setMaxSize(240, 320);
-        orderBox.setMinSize(240, 320);
+        // Dimensioni fisse del contenitore per isolarlo
+        orderBox.setMaxSize(220, 240);
+        orderBox.setMinSize(220, 240);
 
         StackPane displayContainer = new StackPane();
-        displayContainer.setMaxSize(240, 320);
+        displayContainer.setMaxSize(220, 240);
 
         URL displayBgUrl = getClass().getResource("/assets/order_display_frame.png");
         if (displayBgUrl != null) {
-            ImageView frameView = createImageView("/assets/order_display_frame.png", 240, 320, false);
+            ImageView frameView = createImageView("/assets/order_display_frame.png", 220, 240);
             displayContainer.getChildren().addAll(frameView, orderBox);
         } else {
             orderBox.setStyle("-fx-background-color: rgba(255, 248, 231, 0.95); " +
@@ -69,31 +72,47 @@ public class OrderDisplayView extends BorderPane {
                 ? BreadShape.CLASSIC
                 : order.getTargetShape();
         boolean isBaguette = (shape == BreadShape.BAGUETTE);
+        double bunWidth = isBaguette ? STANDARD_WIDTH + 30 : STANDARD_WIDTH;
 
-        double bunWidth = isBaguette ? STANDARD_WIDTH + 40 : STANDARD_WIDTH;
+        // 1. TOP BUN (In cima)
+        ImageView topBunView = createImageView(
+                "/assets/bun_" + shape.name().toLowerCase() + "_top.png", bunWidth, BUN_HEIGHT);
+        orderBox.getChildren().add(topBunView);
 
-        // 1. Inserisci prima il TOP BUN -> va IN CIMA alla VBox
-        orderBox.getChildren().add(createImageView(
-                "/assets/top_bun_" + shape.name().toLowerCase() + ".png", bunWidth, BUN_HEIGHT, true));
+        // Lista dinamica degli ingredienti EFFETTIVAMENTE presenti
+        List<IngredientType> presentIngredients = new ArrayList<>();
 
         if (order != null) {
-            // 2. Inserisci la SALSA
-            if (order.getTargetSauce() != null) {
-                addIngredientNode(order.getTargetSauce(), isBaguette);
-            }
+            // Ordine canonico di inserimento dall'alto verso il basso
+            IngredientType[] canonicalOrder = {
+                    IngredientType.LETTUCE,
+                    IngredientType.ONION,
+                    IngredientType.TOMATO,
+                    IngredientType.PICKLES,
+                    IngredientType.CHEESE
+            };
 
-            // 3. Inserisci gli INGREDIENTI extra (esclusa la carne)
-            order.getTargetIngredients().stream()
-                    .filter(ingredient -> ingredient != IngredientType.PATTY)
-                    .forEach(ingredient -> addIngredientNode(ingredient, isBaguette));
+            for (IngredientType type : canonicalOrder) {
+                if (order.getTargetIngredients().contains(type)) {
+                    presentIngredients.add(type);
+                }
+            }
         }
 
-        // 4. Inserisci la CARNE (PATTY)
+        // 2. Aggiungi gli ingredienti effettivamente presenti alla VBox
+        for (IngredientType ingredient : presentIngredients) {
+            addIngredientNode(ingredient, isBaguette);
+        }
+
+        // 3. PATTY (Carne)
         addIngredientNode(IngredientType.PATTY, isBaguette);
 
-        // 5. Inserisci per ultimo il BOTTOM BUN -> va ALLA BASE della VBox
+        // 4. BOTTOM BUN (Base)
         orderBox.getChildren().add(createImageView(
-                "/assets/bottom_bun_" + shape.name().toLowerCase() + ".png", bunWidth, BUN_HEIGHT, true));
+                "/assets/bun_" + shape.name().toLowerCase() + "_bottom.png", bunWidth, BUN_HEIGHT));
+
+        // 5. REGOLAZIONE DINAMICA DELLA SOVRAPPOSIZIONE E DEGLI OFFSET
+        applyDynamicLayout(shape);
 
         renderStars(scoreStars);
     }
@@ -102,16 +121,74 @@ public class OrderDisplayView extends BorderPane {
         String imagePath = "/assets/ingredient_" + ingredient.name().toLowerCase() + ".png";
 
         if (isBaguette) {
-            HBox doubleBox = new HBox(-12);
+            HBox doubleBox = new HBox(-5);
             doubleBox.setAlignment(Pos.CENTER);
-
-            ImageView img1 = createImageView(imagePath, BAGUETTE_PIECE_WIDTH, INGREDIENT_HEIGHT, true);
-            ImageView img2 = createImageView(imagePath, BAGUETTE_PIECE_WIDTH, INGREDIENT_HEIGHT, true);
-
+            ImageView img1 = createImageView(imagePath, BAGUETTE_PIECE_WIDTH, INGREDIENT_HEIGHT);
+            ImageView img2 = createImageView(imagePath, BAGUETTE_PIECE_WIDTH, INGREDIENT_HEIGHT);
             doubleBox.getChildren().addAll(img1, img2);
+            doubleBox.setUserData(ingredient); // Salviamo il tipo di ingrediente per riferimento futuro
             orderBox.getChildren().add(doubleBox);
         } else {
-            orderBox.getChildren().add(createImageView(imagePath, STANDARD_WIDTH, INGREDIENT_HEIGHT, true));
+            ImageView singleImg = createImageView(imagePath, STANDARD_WIDTH, INGREDIENT_HEIGHT);
+            singleImg.setUserData(ingredient); // Salviamo il tipo di ingrediente
+            orderBox.getChildren().add(singleImg);
+        }
+    }
+
+    /**
+     * Calcola gli offset visivi e l'ordine Z dinamico basandosi ESCLUSIVAMENTE
+     * sugli strati realmente presenti nella VBox, evitando disallineamenti se mancano ingredienti.
+     */
+    private void applyDynamicLayout(BreadShape shape) {
+        int totalElements = orderBox.getChildren().size();
+        boolean isBagel = (shape == BreadShape.BAGEL);
+
+        for (int i = 0; i < totalElements; i++) {
+            Node node = orderBox.getChildren().get(i);
+
+            // Assicura l'ordine Z corretto (Top Bun davanti)
+            node.setViewOrder(i);
+
+            // Calcolo offset in base all'ingrediente effettivo
+            IngredientType type = (node.getUserData() instanceof IngredientType)
+                    ? (IngredientType) node.getUserData()
+                    : null;
+
+            if (i == 0) { // Top Bun
+                node.setTranslateY(isBagel ? 18 : 15);
+            } else if (type != null) {
+                // Compensazione graduale calcolata sull'indice reale nell'array dei nodi presenti
+                int layerOffset = i * 2;
+                int ingredientSpecificOffset = getIngredientBaseOffset(type, isBagel);
+
+                node.setTranslateY(ingredientSpecificOffset + layerOffset);
+            } else if (i == totalElements - 1) { // Bottom Bun
+                node.setTranslateY(0);
+            }
+        }
+    }
+
+    private int getIngredientBaseOffset(IngredientType ingredient, boolean isBagel) {
+        if (isBagel) {
+            return switch (ingredient) {
+                case PATTY -> 8;
+                case CHEESE -> 14;
+                case PICKLES -> 18;
+                case TOMATO -> 10;
+                case ONION -> 14;
+                case LETTUCE -> 12;
+                default -> 0;
+            };
+        } else {
+            return switch (ingredient) {
+                case PATTY -> 6;
+                case CHEESE -> 12;
+                case PICKLES -> 16;
+                case TOMATO -> 8;
+                case ONION -> 12;
+                case LETTUCE -> 10;
+                default -> 0;
+            };
         }
     }
 
@@ -124,7 +201,7 @@ public class OrderDisplayView extends BorderPane {
         }
     }
 
-    private ImageView createImageView(String resourcePath, double width, double height, boolean preserveRatio) {
+    private ImageView createImageView(String resourcePath, double width, double height) {
         ImageView imageView = new ImageView();
         URL imageUrl = getClass().getResource(resourcePath);
         if (imageUrl != null) {
@@ -132,7 +209,7 @@ public class OrderDisplayView extends BorderPane {
         }
         imageView.setFitWidth(width);
         imageView.setFitHeight(height);
-        imageView.setPreserveRatio(preserveRatio);
+        imageView.setPreserveRatio(false);
         return imageView;
     }
 

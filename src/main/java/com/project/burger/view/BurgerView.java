@@ -35,7 +35,7 @@ public class BurgerView extends VBox {
 
         // 1. Pane inferiore
         getChildren().add(createImageView(
-                "/assets/bottom_bun_" + shape.name().toLowerCase() + ".png",
+                "/assets/bun_" + shape.name().toLowerCase() + "_bottom.png",
                 isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH, 45));
 
         // 2. Ingredienti (Duplicati affiancati se Baguette)
@@ -52,7 +52,7 @@ public class BurgerView extends VBox {
 
         // 4. Pane superiore
         getChildren().add(createImageView(
-                "/assets/top_bun_" + shape.name().toLowerCase() + ".png",
+                "/assets/bun_" + shape.name().toLowerCase() + "_top.png",
                 isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH, 45));
 
         // 5. Patatine opzionali
