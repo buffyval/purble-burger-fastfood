@@ -2,6 +2,7 @@ package com.project.burger.view;
 
 import com.project.burger.controller.MainController;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -20,6 +21,9 @@ public class MainApp extends Application {
         OrderDisplayView orderDisplayView = new OrderDisplayView();
         BurgerView burgerView = new BurgerView();
         ChefView chefView = new ChefView();
+
+        // TEMPORANEO: Nascondiamo il panino sul nastro finché non riallineiamo le quote Y
+        burgerView.setVisible(false);
 
         Runnable refresh = () -> {
             burgerView.renderBurger(controller.getCurrentBurger());
@@ -45,19 +49,10 @@ public class MainApp extends Application {
             refresh.run();
         });
 
-        // Contenitori del gioco attivo
-        HBox centerGame = new HBox(30, chefView, burgerView);
-        centerGame.setAlignment(Pos.CENTER);
-
-        HBox bottomControls = new HBox(12, previousButton, stationsView, nextButton);
-        bottomControls.setAlignment(Pos.CENTER);
-
-        orderDisplayView.setMaxHeight(220);
-
         BorderPane gameLayout = new BorderPane();
         gameLayout.setBackground(Background.EMPTY);
 
-        // Menu di Start Iniziale (Titolo + Pulsante centrale)
+        // Menu di Start Iniziale
         Label titleLabel = new Label("Purble Burger Fast Food");
         titleLabel.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
@@ -70,25 +65,50 @@ public class MainApp extends Application {
         startMenuBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.9); -fx-padding: 40; -fx-background-radius: 15;");
         startMenuBox.setMaxSize(500, 250);
 
-        // All'avvio il gioco mostra il menu di start al centro
         gameLayout.setCenter(startMenuBox);
 
         StackPane root = new StackPane(gameLayout);
 
-        // 1. SFONDO INIZIALE DELLA SCHERMATA DI START (kitchen_background.png)
+        // 1. Sfondo Schermata Start
         setAppBackground(root, "/assets/kitchen_background.png");
 
-        // 2. AZIONE AL CLICK SU START: Cambio dello sfondo in background_workbench.png + Caricamento gioco
+        // 2. Azione al click su "Start Game"
         startButton.setOnAction(event -> {
             controller.handleStartGame();
 
-            // Sostituisce lo sfondo con quello del tavolo da lavoro
+            // Sostituzione sfondo con la Workbench
             setAppBackground(root, "/assets/background_workbench.png");
 
-            // Mostra i componenti di gioco nel layout
-            gameLayout.setTop(orderDisplayView);
-            gameLayout.setCenter(centerGame);
-            gameLayout.setBottom(bottomControls);
+            // --- NUOVO LAYOUT DEL BANCO DI LAVORO (WORKBENCH) ---
+
+            // Area centrale superiore (Chef + Nastro con Panino nascosto temporaneamente)
+            HBox upperCenter = new HBox(30, chefView, burgerView);
+            upperCenter.setAlignment(Pos.CENTER);
+
+            // Ridimensionamento e contenimento del Display Ordine
+            orderDisplayView.setMaxSize(200, 220);
+
+            // Barra dei controlli frontale (Workbench):
+            // - A sinistra: Display dell'ordine (spostato in basso sul lato del workbench)
+            // - Al centro: Frecce del nastro e Pulsanti di assemblaggio
+            HBox workbenchFront = new HBox(15);
+            workbenchFront.setAlignment(Pos.BOTTOM_CENTER);
+            workbenchFront.setPadding(new Insets(0, 10, 15, 10));
+
+            HBox stationsWithArrows = new HBox(10, previousButton, stationsView, nextButton);
+            stationsWithArrows.setAlignment(Pos.CENTER);
+
+            // Organizziamo il layout frontale: Display a sinistra, Stazioni al centro
+            BorderPane bottomWorkbenchBar = new BorderPane();
+            bottomWorkbenchBar.setPadding(new Insets(0, 20, 30, 20));
+            bottomWorkbenchBar.setLeft(orderDisplayView);
+            bottomWorkbenchBar.setCenter(stationsWithArrows);
+            BorderPane.setAlignment(orderDisplayView, Pos.BOTTOM_LEFT);
+            BorderPane.setAlignment(stationsWithArrows, Pos.BOTTOM_CENTER);
+
+            gameLayout.setTop(null); // Svuotiamo la parte superiore
+            gameLayout.setCenter(upperCenter);
+            gameLayout.setBottom(bottomWorkbenchBar);
 
             refresh.run();
         });
@@ -98,9 +118,6 @@ public class MainApp extends Application {
         primaryStage.show();
     }
 
-    /**
-     * Helper per impostare o cambiare dinamicamente lo sfondo dello StackPane root
-     */
     private void setAppBackground(Pane rootPane, String resourcePath) {
         URL backgroundUrl = getClass().getResource(resourcePath);
         if (backgroundUrl == null && resourcePath.contains("/assets/")) {
@@ -118,11 +135,8 @@ public class MainApp extends Application {
                     BackgroundPosition.CENTER,
                     bgSize)));
         } else {
-            System.err.println("Immagine di sfondo non trovata: " + resourcePath);
+            rootPane.setStyle("-fx-background-color: #f4f4f4;");
         }
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
 }
