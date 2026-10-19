@@ -6,6 +6,7 @@ import com.project.burger.model.Burger;
 import com.project.burger.model.Ingredient;
 import com.project.burger.model.IngredientType;
 import com.project.burger.model.DrinkType;
+import com.project.burger.model.Order;
 
 public class StationController {
     private Burger burger;
@@ -21,7 +22,21 @@ public class StationController {
     }
 
     public void addMeat() {
-        addIngredient(IngredientType.PATTY);
+        if (burger.getShape() == BreadShape.BAGUETTE) {
+            // La baguette prende sempre il prosciutto
+            addIngredient(IngredientType.HAM);
+        } else if (burger.getShape() == BreadShape.CLASSIC) {
+            // Il classic prende sempre la carne
+            addIngredient(IngredientType.PATTY);
+        } else if (burger.getShape() == BreadShape.BAGEL) {
+            // Il bagel prende quello che l'ordine richiede
+            Order currentOrder = gameEngine.getCurrentOrder();
+            if (currentOrder != null && currentOrder.getTargetIngredients().contains(IngredientType.HAM)) {
+                addIngredient(IngredientType.HAM);
+            } else {
+                addIngredient(IngredientType.PATTY);
+            }
+        }
     }
 
     public void addAddition(IngredientType ingredientType) {

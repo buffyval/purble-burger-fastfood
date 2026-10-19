@@ -16,17 +16,31 @@ public class OrderGenerator {
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
         BreadShape shape = randomEnum(BreadShape.values(), random);
+
         List<IngredientType> ingredientPool = Arrays.stream(IngredientType.values())
                 .filter(type -> !"SAUCE".equals(type.getCategory()) && !"SIDE".equals(type.getCategory()))
+                .filter(type -> type != IngredientType.HAM)
                 .toList();
+
         List<IngredientType> ingredients = new ArrayList<>(ingredientPool);
         Collections.shuffle(ingredients, random);
         ingredients = new ArrayList<>(ingredients.subList(0, random.nextInt(1, 5)));
 
         if (shape == BreadShape.BAGUETTE) {
+
             for (int i = 0; i < ingredients.size(); i++) {
                 if (ingredients.get(i) == IngredientType.PATTY) {
                     ingredients.set(i, IngredientType.HAM);
+                }
+            }
+
+        } else if (shape == BreadShape.BAGEL) {
+
+            if (random.nextBoolean()) {
+                for (int i = 0; i < ingredients.size(); i++) {
+                    if (ingredients.get(i) == IngredientType.PATTY) {
+                        ingredients.set(i, IngredientType.HAM);
+                    }
                 }
             }
         }
