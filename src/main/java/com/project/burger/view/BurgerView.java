@@ -7,7 +7,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -15,7 +14,6 @@ import java.net.URL;
 public class BurgerView extends VBox {
     private static final double STANDARD_WIDTH = 140;
     private static final double BAGUETTE_WIDTH = 260;
-    private static final double SINGLE_PORTION_WIDTH = 125; // Larghezza della singola fetta duplicata
     private static final double INGREDIENT_HEIGHT = 35;
 
     public BurgerView() {
@@ -38,15 +36,15 @@ public class BurgerView extends VBox {
                 "/assets/bun_" + shape.name().toLowerCase() + "_bottom.png",
                 isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH, 45));
 
-        // 2. Ingredienti (Duplicati affiancati se Baguette)
+        // 2. Ingredienti
         for (Ingredient ingredient : burger.getIngredients()) {
-            String path = "/assets/ingredient_" + ingredient.getType().name().toLowerCase() + ".png";
+            String path = ingredientImagePath(ingredient.getType());
             getChildren().add(createIngredientNode(path, isBaguette, INGREDIENT_HEIGHT));
         }
 
-        // 3. Salsa (Duplicata affiancata se Baguette)
+        // 3. Salsa
         if (burger.getSauce() != null) {
-            String saucePath = "/assets/ingredient_" + burger.getSauce().name().toLowerCase() + ".png";
+            String saucePath = ingredientImagePath(burger.getSauce());
             getChildren().add(createIngredientNode(saucePath, isBaguette, 20));
         }
 
@@ -62,21 +60,20 @@ public class BurgerView extends VBox {
     }
 
     /**
-     * Crea un Node singolo (ImageView) se tondo, o un HBox con due copie affiancate se Baguette.
+     * Crea un singolo ingrediente centrato per qualsiasi forma di pane.
      */
     private Node createIngredientNode(String resourcePath, boolean isBaguette, double height) {
-        if (isBaguette) {
-            HBox doubleIngredientBox = new HBox(2); // 2px di distanziamento orizzontale
-            doubleIngredientBox.setAlignment(Pos.CENTER);
+        return createImageView(
+                resourcePath,
+                isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH,
+                height);
+    }
 
-            ImageView leftImage = createImageView(resourcePath, SINGLE_PORTION_WIDTH, height);
-            ImageView rightImage = createImageView(resourcePath, SINGLE_PORTION_WIDTH, height);
-
-            doubleIngredientBox.getChildren().addAll(leftImage, rightImage);
-            return doubleIngredientBox;
-        } else {
-            return createImageView(resourcePath, STANDARD_WIDTH, height);
+    private String ingredientImagePath(com.project.burger.model.IngredientType ingredient) {
+        if (ingredient == com.project.burger.model.IngredientType.HAM) {
+            return "/assets/ingredient_ham.png";
         }
+        return "/assets/ingredient_" + ingredient.name().toLowerCase() + ".png";
     }
 
     private ImageView createImageView(String resourcePath, double fitWidth, double fitHeight) {

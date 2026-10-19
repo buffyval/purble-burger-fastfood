@@ -27,7 +27,6 @@ public class OrderDisplayView extends BorderPane {
     private static final double INGREDIENT_HEIGHT = 100;
 
     private static final double BAGUETTE_WIDTH = 160;
-    private static final double BAGUETTE_PIECE_WIDTH = 130;
 
     private static final int STAR_COUNT = 5;
 
@@ -158,15 +157,7 @@ public class OrderDisplayView extends BorderPane {
                         ? BAGUETTE_WIDTH
                         : STANDARD_WIDTH;
 
-
-        /*
-         * Lista di tutti gli strati.
-         *
-         * IMPORTANTE:
-         * vengono aggiunti dall'alto verso il basso.
-         */
         List<Node> layers = new ArrayList<>();
-
 
         // =====================================================
         // TOP BUN
@@ -182,6 +173,9 @@ public class OrderDisplayView extends BorderPane {
         );
 
         topBun.setUserData(null);
+        if (isBaguette) {
+            topBun.setTranslateY(10); // valore per top bun baguette
+        }
 
         layers.add(topBun);
 
@@ -221,16 +215,22 @@ public class OrderDisplayView extends BorderPane {
 
 
         // =====================================================
-        // PATTY
+        // PATTY or HAM
         // =====================================================
+
+        IngredientType meatIngredient = IngredientType.PATTY;
+        if (order != null && order.getTargetIngredients() != null) {
+            if (order.getTargetIngredients().contains(IngredientType.HAM)) {
+                meatIngredient = IngredientType.HAM;
+            }
+        }
 
         layers.add(
                 createIngredientNode(
-                        IngredientType.PATTY,
+                        meatIngredient,
                         isBaguette
                 )
         );
-
 
         // =====================================================
         // BOTTOM BUN
@@ -254,7 +254,7 @@ public class OrderDisplayView extends BorderPane {
         // POSIZIONAMENTO
         // =====================================================
 
-        layoutLayers(layers);
+        layoutLayers(layers, isBaguette);
 
 
         // =====================================================
@@ -274,53 +274,11 @@ public class OrderDisplayView extends BorderPane {
             boolean isBaguette
     ) {
 
-        String imagePath =
-                "/assets/ingredient_"
-                        + ingredient.name().toLowerCase()
-                        + ".png";
-
-
-        // =====================================================
-        // BAGUETTE
-        // =====================================================
-
-        if (isBaguette) {
-
-            HBox doubleBox = new HBox(-5);
-
-            doubleBox.setAlignment(Pos.CENTER);
-
-            ImageView leftPiece = createImageView(
-                    imagePath,
-                    BAGUETTE_PIECE_WIDTH,
-                    INGREDIENT_HEIGHT
-            );
-
-            ImageView rightPiece = createImageView(
-                    imagePath,
-                    BAGUETTE_PIECE_WIDTH,
-                    INGREDIENT_HEIGHT
-            );
-
-
-            doubleBox.getChildren().addAll(
-                    leftPiece,
-                    rightPiece
-            );
-
-            doubleBox.setUserData(ingredient);
-
-            return doubleBox;
-        }
-
-
-        // =====================================================
-        // CLASSIC / BAGEL
-        // =====================================================
+        String imagePath = ingredientImagePath(ingredient);
 
         ImageView ingredientView = createImageView(
                 imagePath,
-                STANDARD_WIDTH,
+                isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH,
                 INGREDIENT_HEIGHT
         );
 
@@ -329,12 +287,23 @@ public class OrderDisplayView extends BorderPane {
         return ingredientView;
     }
 
+    // =========================================================
+    // PERCORSO IMMAGINE INGREDIENTE PRINCIPALE
+    // =========================================================
+
+    private String ingredientImagePath(IngredientType ingredient) {
+        if (ingredient == IngredientType.HAM) {
+            return "/assets/ingredient_ham.png";
+        }
+        return "/assets/ingredient_" + ingredient.name().toLowerCase() + ".png";
+    }
+
 
     // =========================================================
     // LAYOUT DINAMICO
     // =========================================================
 
-    private void layoutLayers(List<Node> layers) {
+    private void layoutLayers(List<Node> layers, boolean isBaguette) {
 
         double currentY = -55; // valore per spostare l'intero panino dentro il display
 
@@ -357,7 +326,7 @@ public class OrderDisplayView extends BorderPane {
              * -------------------------------------------------
              */
 
-            currentY += getLayerStep(node);
+            currentY += getLayerStep(node, isBaguette);
         }
     }
 
@@ -366,17 +335,17 @@ public class OrderDisplayView extends BorderPane {
     // DISTANZA SPECIFICA PER INGREDIENTE
     // =========================================================
 
-    private double getLayerStep(Node node) {
+    private double getLayerStep(Node node, boolean isBaguette) {
 
         Object data = node.getUserData();
 
         // Se non è un ingrediente, allora è un bun
         if (!(data instanceof IngredientType ingredient)) {
-            return 19; // distanziare il top bun
+            return isBaguette ? 14 : 19; // distanziare il bottom bun dal top bun (differenza con baguette)
         }
 
         return switch (ingredient) {
-            case LETTUCE -> 10;
+            case LETTUCE, HAM -> 10;
             case CHEESE -> 4;
             case ONION -> 2;
             case TOMATO -> 12;

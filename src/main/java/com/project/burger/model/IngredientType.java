@@ -2,6 +2,7 @@ package com.project.burger.model;
 
 public enum IngredientType {
     PATTY("MEAT"),
+    HAM("MEAT"),
     LETTUCE("ADDITION"),
     CHEESE("ADDITION"),
     ONION("ADDITION"),

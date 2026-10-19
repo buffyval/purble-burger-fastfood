@@ -23,6 +23,14 @@ public class OrderGenerator {
         Collections.shuffle(ingredients, random);
         ingredients = new ArrayList<>(ingredients.subList(0, random.nextInt(1, 5)));
 
+        if (shape == BreadShape.BAGUETTE) {
+            for (int i = 0; i < ingredients.size(); i++) {
+                if (ingredients.get(i) == IngredientType.PATTY) {
+                    ingredients.set(i, IngredientType.HAM);
+                }
+            }
+        }
+
         boolean fries = random.nextBoolean();
         IngredientType sauce = random.nextBoolean()
                 ? Arrays.stream(IngredientType.values())
