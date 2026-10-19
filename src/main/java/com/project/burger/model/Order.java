@@ -10,13 +10,15 @@ public class Order {
     private final List<IngredientType> targetIngredients;
     private final boolean targetFries;
     private final IngredientType targetSauce;
+    private final DrinkType targetDrink;
 
     public Order(BreadShape targetShape, List<IngredientType> targetIngredients,
-                 boolean targetFries, IngredientType targetSauce) {
+                 boolean targetFries, IngredientType targetSauce, DrinkType targetDrink) {
         this.targetShape = targetShape;
         this.targetIngredients = new ArrayList<>(targetIngredients);
         this.targetFries = targetFries;
         this.targetSauce = targetSauce;
+        this.targetDrink = targetDrink;
     }
 
     public BreadShape getTargetShape() {
@@ -35,6 +37,10 @@ public class Order {
         return targetSauce;
     }
 
+    public DrinkType getTargetDrink() {
+        return targetDrink;
+    }
+
     public boolean matches(Burger burger) {
         List<IngredientType> burgerIngredients = burger.getIngredients().stream()
                 .map(Ingredient::getType)
@@ -43,6 +49,7 @@ public class Order {
         return Objects.equals(targetShape, burger.getShape())
                 && targetIngredients.equals(burgerIngredients)
                 && targetFries == burger.isFriesPresent()
-                && Objects.equals(targetSauce, burger.getSauce());
+                && Objects.equals(targetSauce, burger.getSauce())
+                && Objects.equals(targetDrink, burger.getDrink());
     }
 }

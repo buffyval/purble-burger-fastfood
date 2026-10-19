@@ -8,6 +8,7 @@ public class MainController {
     private final ConveyorController conveyorController;
     private final StationController stationController;
     private final Burger currentBurger;
+    private boolean orderCompletedAtDrinks;
 
     public MainController() {
         gameEngine = new GameEngine();
@@ -19,6 +20,11 @@ public class MainController {
 
     public void moveConveyorNext() {
         conveyorController.moveToNextStation();
+        if (conveyorController.getCurrentStationIndex() == 6 && !orderCompletedAtDrinks) {
+            stationController.dispenseDrink();
+            stationController.triggerMechanicArm();
+            orderCompletedAtDrinks = true;
+        }
     }
 
     public void moveConveyorPrevious() {
@@ -29,6 +35,7 @@ public class MainController {
         currentBurger.clear();
         gameEngine.startGame();
         conveyorController.reset();
+        orderCompletedAtDrinks = false;
     }
 
     public GameEngine getGameEngine() {

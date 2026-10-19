@@ -8,6 +8,7 @@ public class Burger {
     private final List<Ingredient> ingredients = new ArrayList<>();
     private boolean friesPresent;
     private IngredientType sauce;
+    private DrinkType drink;
 
     public Burger() {
     }
@@ -33,6 +34,7 @@ public class Burger {
         ingredients.clear();
         friesPresent = false;
         sauce = null;
+        drink = null;
     }
 
     public BreadShape getShape() {
@@ -49,5 +51,13 @@ public class Burger {
 
     public IngredientType getSauce() {
         return sauce;
+    }
+
+    public void setDrink(DrinkType drink) {
+        this.drink = drink;
+    }
+
+    public DrinkType getDrink() {
+        return drink;
     }
 }

@@ -9,8 +9,7 @@ public enum IngredientType {
     TOMATO("ADDITION"),
     FRIES("SIDE"),
     KETCHUP("SAUCE"),
-    MUSTARD("SAUCE"),
-    MAYONNAISE("SAUCE");
+    MUSTARD("SAUCE");
 
     private final String category;
 

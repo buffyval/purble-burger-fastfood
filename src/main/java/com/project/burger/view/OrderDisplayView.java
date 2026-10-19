@@ -18,73 +18,183 @@ import java.util.List;
 
 public class OrderDisplayView extends BorderPane {
 
-    // PARAMETRI REGOLABILI PER LA DIMENSIONE GENERALE
-    private static final double STANDARD_WIDTH = 130;
+    // =========================================================
+    // DIMENSIONI IMMAGINI
+    // =========================================================
+
+    private static final double STANDARD_WIDTH = 100;
     private static final double BUN_HEIGHT = 100;
     private static final double INGREDIENT_HEIGHT = 100;
+
+    private static final double BAGUETTE_WIDTH = 160;
     private static final double BAGUETTE_PIECE_WIDTH = 130;
+
     private static final int STAR_COUNT = 5;
 
-    // Spacing verticale base della VBox
-    private final VBox orderBox = new VBox(-80);
+    // =========================================================
+    // DIMENSIONI DISPLAY
+    // =========================================================
+
+    private static final double DISPLAY_WIDTH = 220;
+    private static final double DISPLAY_HEIGHT = 240;
+
+    /*
+     * StackPane anziché VBox.
+     *
+     * In questo modo decidiamo noi esattamente dove posizionare
+     * ogni ingrediente.
+     */
+    private final StackPane orderBox = new StackPane();
+
     private final Label[] stars = new Label[STAR_COUNT];
 
+
     public OrderDisplayView() {
+
         setPadding(new Insets(20, 0, 0, 25));
+
         orderBox.setAlignment(Pos.CENTER);
 
-        // Dimensioni fisse del contenitore per isolarlo
-        orderBox.setMaxSize(220, 240);
-        orderBox.setMinSize(220, 240);
+        orderBox.setPrefSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+        orderBox.setMinSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+        orderBox.setMaxSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
         StackPane displayContainer = new StackPane();
-        displayContainer.setMaxSize(220, 240);
 
-        URL displayBgUrl = getClass().getResource("/assets/order_display_frame.png");
+        displayContainer.setPrefSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+        displayContainer.setMinSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+        displayContainer.setMaxSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+
+
+        URL displayBgUrl =
+                getClass().getResource("/assets/order_display_frame.png");
+
+
         if (displayBgUrl != null) {
-            ImageView frameView = createImageView("/assets/order_display_frame.png", 220, 240);
-            displayContainer.getChildren().addAll(frameView, orderBox);
+
+            ImageView frameView = createImageView(
+                    "/assets/order_display_frame.png",
+                    DISPLAY_WIDTH,
+                    DISPLAY_HEIGHT
+            );
+
+            displayContainer.getChildren().addAll(
+                    frameView,
+                    orderBox
+            );
+
         } else {
-            orderBox.setStyle("-fx-background-color: rgba(255, 248, 231, 0.95); " +
-                    "-fx-border-color: #d6b36a; -fx-border-width: 3px; " +
-                    "-fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10;");
+
+            orderBox.setStyle(
+                    "-fx-background-color: rgba(255, 248, 231, 0.95);" +
+                            "-fx-border-color: #d6b36a;" +
+                            "-fx-border-width: 3px;" +
+                            "-fx-border-radius: 12;" +
+                            "-fx-background-radius: 12;"
+            );
+
             displayContainer.getChildren().add(orderBox);
         }
 
+
+        // =====================================================
+        // STELLE
+        // =====================================================
+
         HBox starsBox = new HBox(3);
+
         starsBox.setAlignment(Pos.TOP_RIGHT);
         starsBox.setStyle("-fx-padding: 10;");
-        for (int index = 0; index < STAR_COUNT; index++) {
-            stars[index] = new Label();
-            stars[index].setStyle("-fx-font-size: 24px;");
-            starsBox.getChildren().add(stars[index]);
+
+
+        for (int i = 0; i < STAR_COUNT; i++) {
+
+            stars[i] = new Label();
+
+            stars[i].setStyle(
+                    "-fx-font-size: 24px;"
+            );
+
+            starsBox.getChildren().add(stars[i]);
         }
+
 
         setLeft(displayContainer);
         setRight(starsBox);
+
         starsBox.setVisible(false);
     }
 
-    public void renderOrder(Order order, @SuppressWarnings("unused") int currentBurgerCount, int scoreStars) {
+
+    // =========================================================
+    // RENDER ORDINE
+    // =========================================================
+
+    public void renderOrder(
+            Order order,
+            @SuppressWarnings("unused") int currentBurgerCount,
+            int scoreStars
+    ) {
+
         orderBox.getChildren().clear();
 
-        BreadShape shape = (order == null || order.getTargetShape() == null)
-                ? BreadShape.CLASSIC
-                : order.getTargetShape();
-        boolean isBaguette = (shape == BreadShape.BAGUETTE);
-        double bunWidth = isBaguette ? STANDARD_WIDTH + 30 : STANDARD_WIDTH;
 
-        // 1. TOP BUN (In cima)
-        ImageView topBunView = createImageView(
-                "/assets/bun_" + shape.name().toLowerCase() + "_top.png", bunWidth, BUN_HEIGHT);
-        orderBox.getChildren().add(topBunView);
+        // =====================================================
+        // FORMA
+        // =====================================================
 
-        // Lista dinamica degli ingredienti EFFETTIVAMENTE presenti
-        List<IngredientType> presentIngredients = new ArrayList<>();
+        BreadShape shape =
+                (order == null || order.getTargetShape() == null)
+                        ? BreadShape.CLASSIC
+                        : order.getTargetShape();
 
-        if (order != null) {
-            // Ordine canonico di inserimento dall'alto verso il basso
-            IngredientType[] canonicalOrder = {
+
+        boolean isBaguette =
+                shape == BreadShape.BAGUETTE;
+
+
+        double bunWidth =
+                isBaguette
+                        ? BAGUETTE_WIDTH
+                        : STANDARD_WIDTH;
+
+
+        /*
+         * Lista di tutti gli strati.
+         *
+         * IMPORTANTE:
+         * vengono aggiunti dall'alto verso il basso.
+         */
+        List<Node> layers = new ArrayList<>();
+
+
+        // =====================================================
+        // TOP BUN
+        // =====================================================
+
+        ImageView topBun = createImageView(
+                "/assets/bun_"
+                        + shape.name().toLowerCase()
+                        + "_top.png",
+
+                bunWidth,
+                BUN_HEIGHT
+        );
+
+        topBun.setUserData(null);
+
+        layers.add(topBun);
+
+
+        // =====================================================
+        // INGREDIENTI PRESENTI
+        // =====================================================
+
+        if (order != null &&
+                order.getTargetIngredients() != null) {
+
+            IngredientType[] ingredientOrder = {
+
                     IngredientType.LETTUCE,
                     IngredientType.ONION,
                     IngredientType.TOMATO,
@@ -92,128 +202,275 @@ public class OrderDisplayView extends BorderPane {
                     IngredientType.CHEESE
             };
 
-            for (IngredientType type : canonicalOrder) {
-                if (order.getTargetIngredients().contains(type)) {
-                    presentIngredients.add(type);
+
+            for (IngredientType ingredient : ingredientOrder) {
+
+                if (order
+                        .getTargetIngredients()
+                        .contains(ingredient)) {
+
+                    layers.add(
+                            createIngredientNode(
+                                    ingredient,
+                                    isBaguette
+                            )
+                    );
                 }
             }
         }
 
-        // 2. Aggiungi gli ingredienti effettivamente presenti alla VBox
-        for (IngredientType ingredient : presentIngredients) {
-            addIngredientNode(ingredient, isBaguette);
-        }
 
-        // 3. PATTY (Carne)
-        addIngredientNode(IngredientType.PATTY, isBaguette);
+        // =====================================================
+        // PATTY
+        // =====================================================
 
-        // 4. BOTTOM BUN (Base)
-        orderBox.getChildren().add(createImageView(
-                "/assets/bun_" + shape.name().toLowerCase() + "_bottom.png", bunWidth, BUN_HEIGHT));
+        layers.add(
+                createIngredientNode(
+                        IngredientType.PATTY,
+                        isBaguette
+                )
+        );
 
-        // 5. REGOLAZIONE DINAMICA DELLA SOVRAPPOSIZIONE E DEGLI OFFSET
-        applyDynamicLayout(shape);
+
+        // =====================================================
+        // BOTTOM BUN
+        // =====================================================
+
+        ImageView bottomBun = createImageView(
+                "/assets/bun_"
+                        + shape.name().toLowerCase()
+                        + "_bottom.png",
+
+                bunWidth,
+                BUN_HEIGHT
+        );
+
+        bottomBun.setUserData(null);
+
+        layers.add(bottomBun);
+
+
+        // =====================================================
+        // POSIZIONAMENTO
+        // =====================================================
+
+        layoutLayers(layers);
+
+
+        // =====================================================
+        // STELLE
+        // =====================================================
 
         renderStars(scoreStars);
     }
 
-    private void addIngredientNode(IngredientType ingredient, boolean isBaguette) {
-        String imagePath = "/assets/ingredient_" + ingredient.name().toLowerCase() + ".png";
+
+    // =========================================================
+    // CREA INGREDIENTE
+    // =========================================================
+
+    private Node createIngredientNode(
+            IngredientType ingredient,
+            boolean isBaguette
+    ) {
+
+        String imagePath =
+                "/assets/ingredient_"
+                        + ingredient.name().toLowerCase()
+                        + ".png";
+
+
+        // =====================================================
+        // BAGUETTE
+        // =====================================================
 
         if (isBaguette) {
+
             HBox doubleBox = new HBox(-5);
+
             doubleBox.setAlignment(Pos.CENTER);
-            ImageView img1 = createImageView(imagePath, BAGUETTE_PIECE_WIDTH, INGREDIENT_HEIGHT);
-            ImageView img2 = createImageView(imagePath, BAGUETTE_PIECE_WIDTH, INGREDIENT_HEIGHT);
-            doubleBox.getChildren().addAll(img1, img2);
-            doubleBox.setUserData(ingredient); // Salviamo il tipo di ingrediente per riferimento futuro
-            orderBox.getChildren().add(doubleBox);
-        } else {
-            ImageView singleImg = createImageView(imagePath, STANDARD_WIDTH, INGREDIENT_HEIGHT);
-            singleImg.setUserData(ingredient); // Salviamo il tipo di ingrediente
-            orderBox.getChildren().add(singleImg);
+
+            ImageView leftPiece = createImageView(
+                    imagePath,
+                    BAGUETTE_PIECE_WIDTH,
+                    INGREDIENT_HEIGHT
+            );
+
+            ImageView rightPiece = createImageView(
+                    imagePath,
+                    BAGUETTE_PIECE_WIDTH,
+                    INGREDIENT_HEIGHT
+            );
+
+
+            doubleBox.getChildren().addAll(
+                    leftPiece,
+                    rightPiece
+            );
+
+            doubleBox.setUserData(ingredient);
+
+            return doubleBox;
         }
+
+
+        // =====================================================
+        // CLASSIC / BAGEL
+        // =====================================================
+
+        ImageView ingredientView = createImageView(
+                imagePath,
+                STANDARD_WIDTH,
+                INGREDIENT_HEIGHT
+        );
+
+        ingredientView.setUserData(ingredient);
+
+        return ingredientView;
     }
 
-    /**
-     * Calcola gli offset visivi e l'ordine Z dinamico basandosi ESCLUSIVAMENTE
-     * sugli strati realmente presenti nella VBox, evitando disallineamenti se mancano ingredienti.
-     */
-    private void applyDynamicLayout(BreadShape shape) {
-        int totalElements = orderBox.getChildren().size();
-        boolean isBagel = (shape == BreadShape.BAGEL);
 
-        for (int i = 0; i < totalElements; i++) {
-            Node node = orderBox.getChildren().get(i);
+    // =========================================================
+    // LAYOUT DINAMICO
+    // =========================================================
 
-            // Assicura l'ordine Z corretto (Top Bun davanti)
+    private void layoutLayers(List<Node> layers) {
+
+        double currentY = -55; // valore per spostare l'intero panino dentro il display
+
+        for (int i = 0; i < layers.size(); i++) {
+
+            Node node = layers.get(i);
+            node.setTranslateY(currentY);
+            /*
+             * Gli elementi più in alto nel panino devono essere
+             * disegnati davanti agli elementi sottostanti.
+             */
             node.setViewOrder(i);
+            // Aggiunge il nodo allo StackPane.
+            orderBox.getChildren().add(node);
 
-            // Calcolo offset in base all'ingrediente effettivo
-            IngredientType type = (node.getUserData() instanceof IngredientType)
-                    ? (IngredientType) node.getUserData()
-                    : null;
 
-            if (i == 0) { // Top Bun
-                node.setTranslateY(isBagel ? 18 : 15);
-            } else if (type != null) {
-                // Compensazione graduale calcolata sull'indice reale nell'array dei nodi presenti
-                int layerOffset = i * 2;
-                int ingredientSpecificOffset = getIngredientBaseOffset(type, isBagel);
+            /*
+             * -------------------------------------------------
+             * CALCOLO DELLA DISTANZA DAL PROSSIMO LAYER
+             * -------------------------------------------------
+             */
 
-                node.setTranslateY(ingredientSpecificOffset + layerOffset);
-            } else if (i == totalElements - 1) { // Bottom Bun
-                node.setTranslateY(0);
-            }
+            currentY += getLayerStep(node);
         }
     }
 
-    private int getIngredientBaseOffset(IngredientType ingredient, boolean isBagel) {
-        if (isBagel) {
-            return switch (ingredient) {
-                case PATTY -> 8;
-                case CHEESE -> 14;
-                case PICKLES -> 18;
-                case TOMATO -> 10;
-                case ONION -> 14;
-                case LETTUCE -> 12;
-                default -> 0;
-            };
-        } else {
-            return switch (ingredient) {
-                case PATTY -> 6;
-                case CHEESE -> 12;
-                case PICKLES -> 16;
-                case TOMATO -> 8;
-                case ONION -> 12;
-                case LETTUCE -> 10;
-                default -> 0;
-            };
+
+    // =========================================================
+    // DISTANZA SPECIFICA PER INGREDIENTE
+    // =========================================================
+
+    private double getLayerStep(Node node) {
+
+        Object data = node.getUserData();
+
+        // Se non è un ingrediente, allora è un bun
+        if (!(data instanceof IngredientType ingredient)) {
+            return 19; // distanziare il top bun
         }
+
+        return switch (ingredient) {
+            case LETTUCE -> 10;
+            case CHEESE -> 4;
+            case ONION -> 2;
+            case TOMATO -> 12;
+            case PICKLES -> 8;
+            case PATTY -> 12.2;
+
+            default -> 15.5;
+        };
     }
+
+
+    // =========================================================
+    // STELLE
+    // =========================================================
 
     private void renderStars(int score) {
+
         int filledStars = clamp(score);
-        for (int index = 0; index < stars.length; index++) {
-            boolean isFilled = index < filledStars;
-            stars[index].setText(isFilled ? "★" : "☆");
-            stars[index].setTextFill(isFilled ? Color.web("#f2b632") : Color.web("#d6b36a"));
+
+
+        for (int i = 0; i < stars.length; i++) {
+
+            boolean isFilled =
+                    i < filledStars;
+
+
+            stars[i].setText(
+                    isFilled
+                            ? "★"
+                            : "☆"
+            );
+
+
+            stars[i].setTextFill(
+                    isFilled
+                            ? Color.web("#f2b632")
+                            : Color.web("#d6b36a")
+            );
         }
     }
 
-    private ImageView createImageView(String resourcePath, double width, double height) {
-        ImageView imageView = new ImageView();
-        URL imageUrl = getClass().getResource(resourcePath);
+    // =========================================================
+    // IMAGE VIEW
+    // =========================================================
+
+    private ImageView createImageView(
+            String resourcePath,
+            double width,
+            double height
+    ) {
+
+        ImageView imageView =
+                new ImageView();
+
+
+        URL imageUrl =
+                getClass().getResource(resourcePath);
+
+
         if (imageUrl != null) {
-            imageView.setImage(new Image(imageUrl.toExternalForm()));
+
+            imageView.setImage(
+                    new Image(
+                            imageUrl.toExternalForm()
+                    )
+            );
+
+        } else {
+
+            System.err.println(
+                    "Immagine non trovata: "
+                            + resourcePath
+            );
         }
+
         imageView.setFitWidth(width);
         imageView.setFitHeight(height);
+
         imageView.setPreserveRatio(false);
+        imageView.setSmooth(true);
+
         return imageView;
     }
 
+    // =========================================================
+    // CLAMP
+    // =========================================================
+
     private int clamp(int value) {
-        return Math.max(0, Math.min(STAR_COUNT, value));
+
+        return Math.clamp(
+                value
+                ,
+                0,
+                STAR_COUNT);
     }
 }

@@ -10,6 +10,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 
 import java.net.URL;
 
@@ -41,11 +45,8 @@ public class StationsView extends HBox {
         // 6. Sauces (Salse)
         getChildren().add(createStation("Sauces", createSauceButtons(stationController)));
 
-        // 7. Mechanic Arm (Braccio Meccanico)
-        Button mechanicArmButton = new Button("Submit");
-        mechanicArmButton.setStyle("-fx-font-weight: bold;");
-        mechanicArmButton.setOnAction(event -> stationController.triggerMechanicArm(null));
-        getChildren().add(createStation("Mechanic Arm", mechanicArmButton));
+        // 7. Drinks (erogatore automatico)
+        getChildren().add(createStation("Drinks", createDrinkDispenser()));
     }
 
     private VBox createStation(String name, javafx.scene.Node... controls) {
@@ -90,9 +91,22 @@ public class StationsView extends HBox {
     private javafx.scene.Node[] createSauceButtons(StationController controller) {
         return new javafx.scene.Node[]{
                 createIngredientBtn(controller, IngredientType.KETCHUP),
-                createIngredientBtn(controller, IngredientType.MUSTARD),
-                createIngredientBtn(controller, IngredientType.MAYONNAISE)
+                createIngredientBtn(controller, IngredientType.MUSTARD)
         };
+    }
+
+    private javafx.scene.Node createDrinkDispenser() {
+        Rectangle dispenser = new Rectangle(42, 32, Color.DARKSLATEGRAY);
+        dispenser.setArcWidth(8);
+        dispenser.setArcHeight(8);
+        Rectangle nozzle = new Rectangle(12, 8, Color.LIGHTGRAY);
+        nozzle.setTranslateY(20);
+        Circle indicator = new Circle(4, Color.LIMEGREEN);
+        indicator.setTranslateY(-8);
+        StackPane graphic = new StackPane(dispenser, nozzle, indicator);
+        graphic.setMinSize(48, 58);
+        graphic.setMaxSize(48, 58);
+        return graphic;
     }
 
     private Button createIngredientBtn(StationController controller, IngredientType type) {

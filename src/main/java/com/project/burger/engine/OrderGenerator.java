@@ -3,6 +3,7 @@ package com.project.burger.engine;
 import com.project.burger.model.BreadShape;
 import com.project.burger.model.IngredientType;
 import com.project.burger.model.Order;
+import com.project.burger.model.DrinkType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,10 +28,14 @@ public class OrderGenerator {
                 ? Arrays.stream(IngredientType.values())
                 .filter(type -> "SAUCE".equals(type.getCategory()))
                 .toList()
-                .get(random.nextInt(3))
+                .get(random.nextInt(2))
                 : null;
 
-        return new Order(shape, ingredients, fries, sauce);
+        DrinkType drink = random.nextBoolean()
+                ? randomEnum(DrinkType.values(), random)
+                : null;
+
+        return new Order(shape, ingredients, fries, sauce, drink);
     }
 
     private <T> T randomEnum(T[] values, ThreadLocalRandom random) {
