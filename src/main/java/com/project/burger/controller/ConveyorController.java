@@ -9,7 +9,7 @@ public class ConveyorController {
     public void moveToNextStation() {
         if (currentStationIndex < 6) {
             currentStationIndex++;
-            if (currentStationIndex == 4 && !hasFries()) {
+            if (currentStationIndex == 4 && hasNoFries()) {
                 currentStationIndex = 6;
             }
         }
@@ -18,7 +18,7 @@ public class ConveyorController {
     public void moveToPreviousStation() {
         if (currentStationIndex > 0) {
             currentStationIndex--;
-            if (currentStationIndex == 4 && !hasFries()) {
+            if (currentStationIndex == 4 && hasNoFries()) {
                 currentStationIndex = 3;
             }
         }
@@ -36,7 +36,7 @@ public class ConveyorController {
         currentStationIndex = 0;
     }
 
-    private boolean hasFries() {
-        return burger != null && burger.isFriesPresent();
+    private boolean hasNoFries() {
+        return burger == null || !burger.isFriesPresent();
     }
 }

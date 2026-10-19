@@ -9,7 +9,7 @@ import com.project.burger.model.DrinkType;
 import com.project.burger.model.Order;
 
 public class StationController {
-    private Burger burger;
+    private final Burger burger;
     private final GameEngine gameEngine;
 
     public StationController(Burger burger, GameEngine gameEngine) {
@@ -47,6 +47,7 @@ public class StationController {
         burger.setFriesPresent(true);
     }
 
+    @SuppressWarnings("unused")
     public void applySauce(IngredientType sauceType) {
         burger.setSauce(sauceType);
     }

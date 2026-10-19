@@ -42,6 +42,7 @@ public class MainController {
         return gameEngine;
     }
 
+    @SuppressWarnings("unused")
     public ConveyorController getConveyorController() {
         return conveyorController;
     }

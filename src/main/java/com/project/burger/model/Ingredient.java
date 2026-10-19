@@ -15,10 +15,12 @@ public class Ingredient {
         return type;
     }
 
+    @SuppressWarnings("unused")
     public String getName() {
         return name;
     }
 
+    @SuppressWarnings("unused")
     public String getImagePath() {
         return imagePath;
     }
