@@ -26,10 +26,17 @@ public class StationsView extends HBox {
         // 1. Shape (Classic, Baguette, Bagel)
         getChildren().add(createStation("Shape", createShapeButtons(stationController)));
 
-        // 2. Meat (Carne)
-        Button meatButton = createImageButton("/assets/ingredient_patty.png", 35);
-        meatButton.setOnAction(event -> stationController.addMeat());
-        getChildren().add(createStation("Meat", meatButton));
+        // 2. Meat (Carne & Prosciutto)
+        Button pattyButton = createImageButton("/assets/ingredient_patty.png", 35);
+        pattyButton.setOnAction(event -> stationController.addAddition(IngredientType.PATTY)); // o stationController.addMeat() per Patty
+
+        Button hamButton = createImageButton("/assets/ingredient_ham.png", 35);
+        hamButton.setOnAction(event -> stationController.addAddition(IngredientType.HAM));
+
+        HBox meatGroup = new HBox(5, pattyButton, hamButton);
+        meatGroup.setAlignment(Pos.CENTER);
+
+        getChildren().add(createStation("Meat", meatGroup));
 
         // 3. Additions 1 (Verdure: Lattuga, Cipolla, Pomodoro)
         getChildren().add(createStation("Additions", createVeggieButtons(stationController)));
