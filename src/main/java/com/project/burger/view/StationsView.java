@@ -20,6 +20,7 @@ import java.net.URL;
 public class StationsView extends HBox {
 
     public StationsView(StationController stationController) {
+
         setAlignment(Pos.CENTER);
         setSpacing(10);
 

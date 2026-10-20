@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
@@ -89,16 +90,44 @@ public class MainApp extends Application {
             gamePane.setPrefSize(GAME_WIDTH, GAME_HEIGHT);
             gamePane.setMaxSize(GAME_WIDTH, GAME_HEIGHT);
 
-            // A. DISPLAY DELL'ORDINE: In basso a sinistra sulla superficie del banco
-            orderDisplayView.setMaxSize(200, 200);
-            orderDisplayView.setLayoutX(30);
-            orderDisplayView.setLayoutY(460);
+            // A. DISPLAY DELL'ORDINE: in basso a sinistra dentro l'immagine
+            orderDisplayView.setMaxSize(200, 90);
+            orderDisplayView.setLayoutX(5);
+            orderDisplayView.setLayoutY(350);
 
             // B. GRUPPO STAZIONI + FRECCE: Al centro sulla superficie del banco
             HBox stationsWithArrows = new HBox(10, previousButton, stationsView, nextButton);
             stationsWithArrows.setAlignment(Pos.CENTER);
-            stationsWithArrows.setLayoutX(250);
-            stationsWithArrows.setLayoutY(560);
+            stationsWithArrows.setLayoutX(270); // modifica la pos X sulla workbench
+            stationsWithArrows.setLayoutY(400); // Y su workbench
+
+            // C. DISPENSER MACCHINARI: Sopra il gruppo di bottoni delle stazioni
+            HBox dispensersBox = new HBox(-30); // Spazio tra una macchina e l'altra
+            dispensersBox.setAlignment(Pos.CENTER);
+
+            String[] machinePaths = {
+                    "/assets/machine_shape.png",
+                    "/assets/machine_meat.png",
+                    "/assets/machine_veggies.png",
+                    "/assets/machine_pickles_cheese.png",
+                    "/assets/machine_fries_sauces.png"
+            };
+
+            for (String path : machinePaths) {
+                ImageView machineView = new ImageView();
+                URL url = getClass().getResource(path);
+                if (url != null) {
+                    machineView.setImage(new Image(url.toExternalForm()));
+                } else {
+                    System.err.println("Immagine non trovata: " + path);
+                }
+                machineView.setFitHeight(220); // Modifica la dimensione di tutti i dispenser qui
+                machineView.setPreserveRatio(true);
+                dispensersBox.getChildren().add(machineView);
+            }
+
+            dispensersBox.setLayoutX(170); // aumenta per spostare a destra
+            dispensersBox.setLayoutY(50); // aumenta per spostare in basso
 
             // C. CHEF + PANINO: Sul piano della cucina
             HBox upperCenter = new HBox(30, chefView, burgerView);
@@ -106,10 +135,10 @@ public class MainApp extends Application {
             upperCenter.setLayoutX(300);
             upperCenter.setLayoutY(180);
 
-            // Aggiungiamo i controlli al gamePane
-            gamePane.getChildren().addAll(orderDisplayView, stationsWithArrows, upperCenter);
+            // Aggiungo i controlli al gamePane
+            gamePane.getChildren().addAll(orderDisplayView, dispensersBox, stationsWithArrows, upperCenter);
 
-            // Inseriamo il gamePane al centro della finestra
+            // Inserisco il gamePane al centro della finestra
             gameLayout.setCenter(gamePane);
 
             refresh.run();

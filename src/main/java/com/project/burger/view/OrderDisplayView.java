@@ -39,14 +39,11 @@ public class OrderDisplayView extends BorderPane {
 
     /*
      * StackPane anziché VBox.
-     *
-     * In questo modo decidiamo noi esattamente dove posizionare
+     * In questo modo decido esattamente dove posizionare
      * ogni ingrediente.
      */
     private final StackPane orderBox = new StackPane();
-
     private final Label[] stars = new Label[STAR_COUNT];
-
 
     public OrderDisplayView() {
 
