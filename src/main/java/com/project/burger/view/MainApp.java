@@ -90,20 +90,23 @@ public class MainApp extends Application {
             gamePane.setPrefSize(GAME_WIDTH, GAME_HEIGHT);
             gamePane.setMaxSize(GAME_WIDTH, GAME_HEIGHT);
 
-            // A. DISPLAY DELL'ORDINE: in basso a sinistra dentro l'immagine
+            // ----- DISPLAY DELL'ORDINE -----
+            // in basso a sinistra dentro l'immagine
             orderDisplayView.setMaxSize(200, 90);
             orderDisplayView.setLayoutX(5);
             orderDisplayView.setLayoutY(350);
 
-            // B. GRUPPO STAZIONI + FRECCE: Al centro sulla superficie del banco
+            // ----- GRUPPO STAZIONI + FRECCE -----
+            // Al centro sulla superficie del banco
             HBox stationsWithArrows = new HBox(10, previousButton, stationsView, nextButton);
             stationsWithArrows.setAlignment(Pos.CENTER);
             stationsWithArrows.setLayoutX(270); // modifica la pos X sulla workbench
             stationsWithArrows.setLayoutY(400); // Y su workbench
 
-            // C. DISPENSER MACCHINARI: Sopra il gruppo di bottoni delle stazioni
-            HBox dispensersBox = new HBox(-30); // Spazio tra una macchina e l'altra
-            dispensersBox.setAlignment(Pos.CENTER);
+            // ----- DISPENSERS -----
+            // Sopra il gruppo di bottoni delle stazioni
+            HBox dispensersBox = new HBox(0); // Spazio tra una macchina e l'altra (a 0, gestita nello switch)
+            dispensersBox.setAlignment(Pos.BOTTOM_CENTER);
 
             String[] machinePaths = {
                     "/assets/machine_shape.png",
@@ -119,17 +122,43 @@ public class MainApp extends Application {
                 if (url != null) {
                     machineView.setImage(new Image(url.toExternalForm()));
                 } else {
-                    System.err.println("Immagine non trovata: " + path);
+                    System.err.println("Image not found: " + path);
                 }
                 machineView.setFitHeight(220); // Modifica la dimensione di tutti i dispenser qui
                 machineView.setPreserveRatio(true);
+
+                switch (path) {
+                    case "/assets/machine_shape.png" -> {
+                        machineView.setTranslateY(-1); // valore negativo alza
+                        // machineView.setTranslateX(0);
+                    }
+                    case "/assets/machine_meat.png" -> {
+                        // machineView.setTranslateY(5);
+                        machineView.setTranslateX(-60); // Valore negativo <- verso sinistra
+                    }
+                    case "/assets/machine_veggies.png" -> {
+                        // machineView.setTranslateY(-5);
+                        machineView.setTranslateX(-110);
+                    }
+                    case "/assets/machine_pickles_cheese.png" -> {
+                        machineView.setTranslateY(3);
+                        machineView.setTranslateX(-160);
+                    }
+                    case "/assets/machine_fries_sauces.png" -> {
+                        machineView.setTranslateY(3);
+                        machineView.setTranslateX(-240);
+                    }
+                }
+
                 dispensersBox.getChildren().add(machineView);
             }
 
-            dispensersBox.setLayoutX(170); // aumenta per spostare a destra
-            dispensersBox.setLayoutY(50); // aumenta per spostare in basso
+            // posizioni globali dei dispenser
+            dispensersBox.setLayoutX(165); // aumenta per spostare a destra
+            dispensersBox.setLayoutY(48); // aumenta per spostare in basso
 
-            // C. CHEF + PANINO: Sul piano della cucina
+            // ----- CHEF + PANINO -----
+            // Sul piano della cucina
             HBox upperCenter = new HBox(30, chefView, burgerView);
             upperCenter.setAlignment(Pos.CENTER);
             upperCenter.setLayoutX(300);
