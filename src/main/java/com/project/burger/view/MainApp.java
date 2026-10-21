@@ -25,9 +25,6 @@ public class MainApp extends Application {
         BurgerView burgerView = new BurgerView();
         ChefView chefView = new ChefView();
 
-        // TEMPORANEO: Nascondiamo il panino finché non riallineiamo le quote Y del nastro
-        burgerView.setVisible(false);
-
         Runnable refresh = () -> {
             burgerView.renderBurger(controller.getCurrentBurger());
             orderDisplayView.renderOrder(
@@ -42,6 +39,7 @@ public class MainApp extends Application {
         previousButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 8 12;");
         previousButton.setOnAction(event -> {
             controller.moveConveyorPrevious();
+            burgerView.moveConveyorTo(Math.min(controller.getConveyorController().getCurrentStationIndex(), 5));
             refresh.run();
         });
 
@@ -49,6 +47,7 @@ public class MainApp extends Application {
         nextButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 8 12;");
         nextButton.setOnAction(event -> {
             controller.moveConveyorNext();
+            burgerView.moveConveyorTo(Math.min(controller.getConveyorController().getCurrentStationIndex(), 5));
             refresh.run();
         });
 
@@ -128,18 +127,12 @@ public class MainApp extends Application {
                 machineView.setPreserveRatio(true);
 
                 switch (path) {
-                    case "/assets/machine_shape.png" -> {
-                        machineView.setTranslateY(-1); // valore negativo alza
-                        // machineView.setTranslateX(0);
-                    }
-                    case "/assets/machine_meat.png" -> {
-                        // machineView.setTranslateY(5);
-                        machineView.setTranslateX(-60); // Valore negativo <- verso sinistra
-                    }
-                    case "/assets/machine_veggies.png" -> {
-                        // machineView.setTranslateY(-5);
-                        machineView.setTranslateX(-110);
-                    }
+                    case "/assets/machine_shape.png" ->
+                            machineView.setTranslateY(-1); // valore negativo alza (Y)
+                    case "/assets/machine_meat.png" ->
+                            machineView.setTranslateX(-60); // Valore negativo (X) <- verso sinistra
+                    case "/assets/machine_veggies.png" ->
+                            machineView.setTranslateX(-110);
                     case "/assets/machine_pickles_cheese.png" -> {
                         machineView.setTranslateY(3);
                         machineView.setTranslateX(-160);
@@ -157,15 +150,17 @@ public class MainApp extends Application {
             dispensersBox.setLayoutX(165); // aumenta per spostare a destra
             dispensersBox.setLayoutY(48); // aumenta per spostare in basso
 
-            // ----- CHEF + PANINO -----
-            // Sul piano della cucina
-            HBox upperCenter = new HBox(30, chefView, burgerView);
-            upperCenter.setAlignment(Pos.CENTER);
-            upperCenter.setLayoutX(300);
-            upperCenter.setLayoutY(180);
+            // ----- CHEF + CONVEYOR -----
+            chefView.setLayoutX(30);
+            chefView.setLayoutY(360); // Sposta lo chef più in basso se necessario
+
+            burgerView.setLayoutX(120);
+            burgerView.setLayoutY(270); // Aumenta il valore Y per abbassare
+            // burgerView.animateConveyor(true);
 
             // Aggiungo i controlli al gamePane
-            gamePane.getChildren().addAll(orderDisplayView, dispensersBox, stationsWithArrows, upperCenter);
+            gamePane.getChildren().addAll(orderDisplayView, dispensersBox, stationsWithArrows,
+                    chefView, burgerView);
 
             // Inserisco il gamePane al centro della finestra
             gameLayout.setCenter(gamePane);
