@@ -58,9 +58,55 @@ public class BurgerView extends StackPane {
         movingStack.setTranslateY(-135); // aumenta per allineare il vassoio con il nastro
 
         Node tray = createTray();
-        StackPane trayAndBurger = new StackPane(tray, burgerLayers);
-        trayAndBurger.setAlignment(Pos.BOTTOM_LEFT);
-        StackPane.setMargin(burgerLayers, new javafx.geometry.Insets(0, 0, TRAY_HEIGHT - 8, 0));
+
+        /*
+         * Larghezza visiva reale del vassoio:
+         */
+        final double TRAY_VISUAL_WIDTH = TRAY_WIDTH + 40;
+
+        /*
+         * Contenitore del panino.
+         */
+        StackPane burgerContainer = new StackPane(burgerLayers);
+
+        burgerContainer.setPrefWidth(STANDARD_WIDTH);
+        burgerContainer.setMinWidth(STANDARD_WIDTH);
+        burgerContainer.setMaxWidth(STANDARD_WIDTH);
+
+        burgerContainer.setAlignment(Pos.BOTTOM_CENTER);
+
+        final double BURGER_X_OFFSET = 40;
+        final double BURGER_Y_OFFSET = 20;
+        double centeredBurgerX = (TRAY_VISUAL_WIDTH - STANDARD_WIDTH) / 2;
+        burgerContainer.setTranslateX (centeredBurgerX + BURGER_X_OFFSET);
+        burgerContainer.setTranslateY(BURGER_Y_OFFSET);
+
+        StackPane.setMargin(burgerContainer, new javafx.geometry.Insets(0, 0, BURGER_Y_OFFSET, 0));
+
+        /*
+         * Contenitore comune di vassoio e panino.
+         * Fondamentale: blocchiamo la larghezza.
+         */
+        StackPane trayAndBurger = new StackPane();
+
+        trayAndBurger.setPrefSize(TRAY_VISUAL_WIDTH, 180);
+        trayAndBurger.setMinSize(TRAY_VISUAL_WIDTH, 180);
+        trayAndBurger.setMaxSize(TRAY_VISUAL_WIDTH, 180);
+
+        /*
+         * Allineamento specifico dei due elementi.
+         */
+        StackPane.setAlignment(tray, Pos.BOTTOM_LEFT);
+        StackPane.setAlignment(burgerContainer, Pos.BOTTOM_LEFT);
+
+        trayAndBurger.getChildren().addAll(tray, burgerContainer);
+
+        /*
+         * Posizioniamo l'intero gruppo vassoio + panino
+         * sul lato sinistro del movingStack.
+         */
+        StackPane.setAlignment(trayAndBurger, Pos.BOTTOM_LEFT);
+
         movingStack.getChildren().add(trayAndBurger);
 
         getChildren().addAll(belt, movingStack);
@@ -189,8 +235,8 @@ public class BurgerView extends StackPane {
         if (stackTransition != null) {
             stackTransition.stop();
         }
-        final double TRAY_X_OFFSET = 330;
-        double targetTranslateX = targetX - (TRAY_WIDTH / 2) - TRAY_X_OFFSET;
+        final double TRAY_X_OFFSET = 40;
+        double targetTranslateX = targetX - (TRAY_WIDTH / 2) + TRAY_X_OFFSET;
         if (!animated) {
             movingStack.setTranslateX(targetTranslateX);
             return;
