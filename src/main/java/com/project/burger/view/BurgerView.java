@@ -27,9 +27,9 @@ public class BurgerView extends StackPane {
     private static final double BAGUETTE_WIDTH = 260;
     private static final double INGREDIENT_HEIGHT = 35;
     private static final double BELT_WIDTH = 900;
-    private static final double BELT_HEIGHT = 38;
-    private static final double TRAY_WIDTH = 220;
-    private static final double TRAY_HEIGHT = 42;
+    private static final double BELT_HEIGHT = 50;
+    private static final double TRAY_WIDTH = 130;
+    private static final double TRAY_HEIGHT = 30;
     private static final int STATION_COUNT = 6;
     private static final double[] DEFAULT_STATION_X = {70, 194, 318, 442, 566, 690};
 
@@ -52,12 +52,14 @@ public class BurgerView extends StackPane {
         movingStack.setPrefSize(BELT_WIDTH, 180);
         movingStack.setMinSize(BELT_WIDTH, 180);
         movingStack.setMaxSize(BELT_WIDTH, 180);
-        movingStack.setAlignment(Pos.BOTTOM_CENTER);
-        StackPane.setAlignment(movingStack, Pos.BOTTOM_CENTER);
+        movingStack.setAlignment(Pos.BOTTOM_LEFT);
+        StackPane.setAlignment(movingStack, Pos.BOTTOM_LEFT);
+
+        movingStack.setTranslateY(-135); // aumenta per allineare il vassoio con il nastro
 
         Node tray = createTray();
         StackPane trayAndBurger = new StackPane(tray, burgerLayers);
-        trayAndBurger.setAlignment(Pos.BOTTOM_CENTER);
+        trayAndBurger.setAlignment(Pos.BOTTOM_LEFT);
         StackPane.setMargin(burgerLayers, new javafx.geometry.Insets(0, 0, TRAY_HEIGHT - 8, 0));
         movingStack.getChildren().add(trayAndBurger);
 
@@ -69,18 +71,15 @@ public class BurgerView extends StackPane {
         Pane belt = new Pane();
         belt.setPrefSize(BELT_WIDTH, BELT_HEIGHT + 10); // +10 per lo spessore 3D
 
-        // 1. Superficie piana superiore del nastro (dove appoggia il vassoio)
-        // Rectangle surface = new Rectangle(BELT_WIDTH, BELT_HEIGHT);
-
         double slantOffsetLeft = 70.0; // più è alto, più si stringe in alto
         double slantOffsetRight = 0.0;
 
         Polygon surface = new Polygon();
         surface.getPoints().addAll(
                 slantOffsetLeft, 0.0,      // Angolo in alto a sinistra (rientrante)
-                BELT_WIDTH - slantOffsetRight, 0.0,   // Angolo in alto a destra (rientrante)
-                BELT_WIDTH, BELT_HEIGHT,         // Angolo in basso a destra (largo)
-                0.0, BELT_HEIGHT                 // Angolo in basso a sinistra (largo)
+                BELT_WIDTH - slantOffsetRight, 0.0,  // Angolo in alto a destra (rientrante)
+                BELT_WIDTH, BELT_HEIGHT,             // Angolo in basso a destra (largo)
+                0.0, BELT_HEIGHT                     // Angolo in basso a sinistra (largo)
         );
 
         surface.setFill(Color.web("#5A5A5A")); // Grigio più chiaro per la parte piatta
@@ -88,10 +87,10 @@ public class BurgerView extends StackPane {
         surface.setStrokeWidth(2);
         surface.setStrokeType(StrokeType.INSIDE);
 
-        // 2. Spessore frontale (l'ombra/bordo del nastro per il 3D)
+        // Spessore frontale (l'ombra/bordo del nastro per il 3D)
         Rectangle frontEdge = new Rectangle(BELT_WIDTH, 10);
         frontEdge.setTranslateY(BELT_HEIGHT); // Posizionato sotto la superficie
-        frontEdge.setFill(Color.web("#2B2B2B")); // Molto scuro
+        frontEdge.setFill(Color.web("#2B2B2B"));
 
         // maschera di ritaglio per le linee di scorrimento
         Polygon clipPolygon = new Polygon();
@@ -104,7 +103,7 @@ public class BurgerView extends StackPane {
         beltLines.setClip(clipPolygon);
 
         // Linee di scorrimento
-        for (double x = -200; x < BELT_WIDTH + 200; x += 100) { // 100 è la distanza tra le linee
+        for (double x = -200; x < BELT_WIDTH + 200; x += 200) { // 100 è la distanza tra le linee
             double topX = x + slantOffsetLeft; // Inclinazione che segue esattamente il trapezio
             Line line = new Line(topX, 0, x, BELT_HEIGHT);
             line.setStroke(Color.web("#444444"));
@@ -117,15 +116,23 @@ public class BurgerView extends StackPane {
     }
 
     private Node createTray() {
-        ImageView tray = createImageView("/assets/tray.png", TRAY_WIDTH, TRAY_HEIGHT);
-        if (tray.getImage() == null) {
-            Rectangle fallback = new Rectangle(TRAY_WIDTH, TRAY_HEIGHT, Color.web("#777777"));
-            fallback.setStroke(Color.web("#333333"));
-            fallback.setArcWidth(12);
-            fallback.setArcHeight(12);
-            return new StackPane(fallback);
-        }
-        return tray;
+        Polygon trayPolygon = new Polygon();
+
+        double traySlant = 40.0; // inclinazione del parallelogramma (vassoio)
+
+        // Punti del Parallelogramma (inclinato verso destra)
+        trayPolygon.getPoints().addAll(
+                traySlant, 0.0,                 // 1. In alto a sinistra (spostato a destra di 40px)
+                TRAY_WIDTH + traySlant, 0.0,     // 2. In alto a destra (spostato a destra di 40px)
+                TRAY_WIDTH, TRAY_HEIGHT,         // 3. In basso a destra
+                0.0, TRAY_HEIGHT                 // 4. In basso a sinistra
+        );
+
+        trayPolygon.setFill(Color.web("#777777"));
+        trayPolygon.setStroke(Color.web("#333333"));
+        trayPolygon.setStrokeWidth(2);
+
+        return new StackPane(trayPolygon);
     }
 
     /**
@@ -182,7 +189,8 @@ public class BurgerView extends StackPane {
         if (stackTransition != null) {
             stackTransition.stop();
         }
-        double targetTranslateX = targetX - BELT_WIDTH / 2;
+        final double TRAY_X_OFFSET = 330;
+        double targetTranslateX = targetX - (TRAY_WIDTH / 2) - TRAY_X_OFFSET;
         if (!animated) {
             movingStack.setTranslateX(targetTranslateX);
             return;
