@@ -14,6 +14,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Polygon;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.shape.Line;
 import javafx.scene.Group;
@@ -25,8 +26,8 @@ public class BurgerView extends StackPane {
     private static final double STANDARD_WIDTH = 140;
     private static final double BAGUETTE_WIDTH = 260;
     private static final double INGREDIENT_HEIGHT = 35;
-    private static final double BELT_WIDTH = 760;
-    private static final double BELT_HEIGHT = 25;
+    private static final double BELT_WIDTH = 900;
+    private static final double BELT_HEIGHT = 38;
     private static final double TRAY_WIDTH = 220;
     private static final double TRAY_HEIGHT = 42;
     private static final int STATION_COUNT = 6;
@@ -69,7 +70,19 @@ public class BurgerView extends StackPane {
         belt.setPrefSize(BELT_WIDTH, BELT_HEIGHT + 10); // +10 per lo spessore 3D
 
         // 1. Superficie piana superiore del nastro (dove appoggia il vassoio)
-        Rectangle surface = new Rectangle(BELT_WIDTH, BELT_HEIGHT);
+        // Rectangle surface = new Rectangle(BELT_WIDTH, BELT_HEIGHT);
+
+        double slantOffsetLeft = 70.0; // più è alto, più si stringe in alto
+        double slantOffsetRight = 0.0;
+
+        Polygon surface = new Polygon();
+        surface.getPoints().addAll(
+                slantOffsetLeft, 0.0,      // Angolo in alto a sinistra (rientrante)
+                BELT_WIDTH - slantOffsetRight, 0.0,   // Angolo in alto a destra (rientrante)
+                BELT_WIDTH, BELT_HEIGHT,         // Angolo in basso a destra (largo)
+                0.0, BELT_HEIGHT                 // Angolo in basso a sinistra (largo)
+        );
+
         surface.setFill(Color.web("#5A5A5A")); // Grigio più chiaro per la parte piatta
         surface.setStroke(Color.web("#333333"));
         surface.setStrokeWidth(2);
@@ -80,9 +93,20 @@ public class BurgerView extends StackPane {
         frontEdge.setTranslateY(BELT_HEIGHT); // Posizionato sotto la superficie
         frontEdge.setFill(Color.web("#2B2B2B")); // Molto scuro
 
-        // 3. Linee di scorrimento (più sottili e delicate)
-        for (double x = 12; x < BELT_WIDTH; x += 36) {
-            Line line = new Line(x, 2, x, BELT_HEIGHT - 2);
+        // maschera di ritaglio per le linee di scorrimento
+        Polygon clipPolygon = new Polygon();
+        clipPolygon.getPoints().addAll(
+                slantOffsetLeft, 0.0,
+                BELT_WIDTH - slantOffsetRight, 0.0,
+                BELT_WIDTH, BELT_HEIGHT,
+                0.0, BELT_HEIGHT
+        );
+        beltLines.setClip(clipPolygon);
+
+        // Linee di scorrimento
+        for (double x = -200; x < BELT_WIDTH + 200; x += 100) { // 100 è la distanza tra le linee
+            double topX = x + slantOffsetLeft; // Inclinazione che segue esattamente il trapezio
+            Line line = new Line(topX, 0, x, BELT_HEIGHT);
             line.setStroke(Color.web("#444444"));
             line.setStrokeWidth(2);
             beltLines.getChildren().add(line);
@@ -113,9 +137,8 @@ public class BurgerView extends StackPane {
         }
         // Usa la stessa durata del vassoio (450ms) per sincronizzare il movimento
         beltTransition = new TranslateTransition(Duration.millis(450), beltLines);
-        // Muove le linee in base alla direzione
-        beltTransition.setByX(forward ? -124 : 124);
-        beltTransition.setCycleCount(1); // Esegue una sola volta, NON all'infinito
+        beltTransition.setByX(forward ? -124 : 124); // Muove le linee in base alla direzione
+        beltTransition.setCycleCount(1); // Esegue una sola volta
         beltTransition.setInterpolator(Interpolator.EASE_BOTH);
         beltTransition.play();
     }

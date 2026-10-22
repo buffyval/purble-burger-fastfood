@@ -154,8 +154,8 @@ public class MainApp extends Application {
             chefView.setLayoutX(30);
             chefView.setLayoutY(360); // Sposta lo chef più in basso se necessario
 
-            burgerView.setLayoutX(120);
-            burgerView.setLayoutY(270); // Aumenta il valore Y per abbassare
+            burgerView.setLayoutX(100); // Aumenta per spostare a destra
+            burgerView.setLayoutY(252); // Aumenta il valore Y per abbassare
             // burgerView.animateConveyor(true);
 
             // Aggiungo i controlli al gamePane
