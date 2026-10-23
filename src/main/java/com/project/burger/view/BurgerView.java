@@ -190,7 +190,7 @@ public class BurgerView extends StackPane {
         }
         // Usa la stessa durata del vassoio (450ms) per sincronizzare il movimento
         beltTransition = new TranslateTransition(Duration.millis(450), beltLines);
-        beltTransition.setByX(forward ? -124 : 124); // Muove le linee in base alla direzione
+        beltTransition.setByX(forward ? 124 : -124); // Muove le linee in base alla direzione
         beltTransition.setCycleCount(1); // Esegue una sola volta
         beltTransition.setInterpolator(Interpolator.EASE_BOTH);
         beltTransition.play();

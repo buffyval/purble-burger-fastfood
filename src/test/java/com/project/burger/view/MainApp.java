@@ -36,20 +36,24 @@ public class MainApp extends Application {
         StationsView stationsView = new StationsView(controller.getStationController());
 
         Button previousButton = new Button("<");
-        previousButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 8 12;");
+        previousButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 8 12; -fx-cursor: hand;");
         previousButton.setOnAction(event -> {
             controller.moveConveyorPrevious();
-            burgerView.moveConveyorTo(Math.min(controller.getConveyorController().getCurrentStationIndex(), 5));
+            burgerView.moveConveyorTo(controller.getConveyorController().getCurrentStationIndex());
             refresh.run();
         });
 
         Button nextButton = new Button(">");
-        nextButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 8 12;");
+        nextButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 8 12; -fx-cursor: hand;");
         nextButton.setOnAction(event -> {
             controller.moveConveyorNext();
-            burgerView.moveConveyorTo(Math.min(controller.getConveyorController().getCurrentStationIndex(), 5));
+            burgerView.moveConveyorTo(controller.getConveyorController().getCurrentStationIndex());
             refresh.run();
         });
+
+        HBox bottomControls = new HBox(12, previousButton, stationsView, nextButton);
+        bottomControls.setAlignment(Pos.CENTER);
+        bottomControls.toFront();
 
         BorderPane gameLayout = new BorderPane();
         gameLayout.setBackground(Background.EMPTY);
@@ -158,9 +162,9 @@ public class MainApp extends Application {
             burgerView.setLayoutY(252); // Aumenta il valore Y per abbassare
             // burgerView.animateConveyor(true);
 
-            // Aggiungo i controlli al gamePane
-            gamePane.getChildren().addAll(orderDisplayView, dispensersBox, stationsWithArrows,
-                    chefView, burgerView);
+            // Aggiungo i controlli al gamePane (burgerView inserito PRIMA di stationsWithArrows)
+            gamePane.getChildren().addAll(orderDisplayView, dispensersBox, chefView, burgerView, stationsWithArrows);
+            stationsWithArrows.toFront();
 
             // Inserisco il gamePane al centro della finestra
             gameLayout.setCenter(gamePane);
