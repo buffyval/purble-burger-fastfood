@@ -255,21 +255,28 @@ public class BurgerView extends StackPane {
 
         BreadShape shape = burger.getShape() == null ? BreadShape.CLASSIC : burger.getShape();
         boolean isBaguette = shape == BreadShape.BAGUETTE;
+
         burgerLayers.getChildren().add(createImageView(
-                "/assets/bun_" + shape.name().toLowerCase() + "_bottom.png",
+                "/assets/bun_" + shape.name().toLowerCase() + "_top.png",
                 isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH, 45));
 
+        // extra ingredients
         for (Ingredient ingredient : burger.getIngredients()) {
             burgerLayers.getChildren().add(createIngredientNode(
                     ingredientImagePath(ingredient.getType()), isBaguette, INGREDIENT_HEIGHT));
         }
+
+        // sauce
         if (burger.getSauce() != null) {
             burgerLayers.getChildren().add(createIngredientNode(
                     ingredientImagePath(burger.getSauce()), isBaguette, 20));
         }
+
         burgerLayers.getChildren().add(createImageView(
-                "/assets/bun_" + shape.name().toLowerCase() + "_top.png",
+                "/assets/bun_" + shape.name().toLowerCase() + "_bottom.png",
                 isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH, 45));
+
+        // fries are optional
         if (burger.isFriesPresent()) {
             burgerLayers.getChildren().add(createImageView("/assets/fries.png", STANDARD_WIDTH, 45));
         }

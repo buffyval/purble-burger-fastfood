@@ -34,7 +34,7 @@ public class StationsView extends HBox {
         Button hamButton = createImageButton("/assets/ingredient_ham.png", 35);
         hamButton.setOnAction(event -> stationController.addAddition(IngredientType.HAM));
 
-        HBox meatGroup = new HBox(5, pattyButton, hamButton);
+        VBox meatGroup = new VBox(5, pattyButton, hamButton);
         meatGroup.setAlignment(Pos.CENTER);
 
         getChildren().add(createStation("Meat", meatGroup));
@@ -45,13 +45,25 @@ public class StationsView extends HBox {
         // 4. Additions 2 (Pickles / Cheese)
         getChildren().add(createStation("Additions", createCheesePicklesButtons(stationController)));
 
-        // 5. Fries (Patatine)
+        // 5. Fries
         Button friesButton = createImageButton("/assets/fries.png", 35);
         friesButton.setOnAction(event -> stationController.addFries());
-        getChildren().add(createStation("Fries", friesButton));
+        // getChildren().add(createStation("Fries", friesButton));
 
-        // 6. Sauces (Salse)
-        getChildren().add(createStation("Sauces", createSauceButtons(stationController)));
+        // 6. Sauces (Ketchup and Mustard)
+        Button ketchupButton = createImageButton("/assets/sauce_ketchup.png", 35);
+        ketchupButton.setOnAction(event -> stationController.applySauce(IngredientType.KETCHUP));
+        // getChildren().add(createStation("Sauces", createSauceButtons(stationController)));
+        Button mustardButton = createImageButton("/assets/sauce_mustard.png", 35);
+        mustardButton.setOnAction(event -> stationController.applySauce(IngredientType.MUSTARD));
+
+        HBox saucesGroup = new HBox(5, ketchupButton, mustardButton);
+        saucesGroup.setAlignment(Pos.CENTER);
+
+        VBox friesAndSaucesGroup = new VBox(8, friesButton, saucesGroup);
+        friesAndSaucesGroup.setAlignment(Pos.CENTER);
+
+        getChildren().add(createStation("Fries & Sauces", friesAndSaucesGroup));
 
         // 7. Drinks (erogatore automatico)
         getChildren().add(createStation("Drinks", createDrinkDispenser()));
