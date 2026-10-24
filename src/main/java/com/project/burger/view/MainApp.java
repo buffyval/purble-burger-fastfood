@@ -33,7 +33,7 @@ public class MainApp extends Application {
                     controller.getGameEngine().getScoreStars());
         };
 
-        StationsView stationsView = new StationsView(controller.getStationController());
+        StationsView stationsView = new StationsView(controller.getStationController(), controller.getConveyorController(), refresh);
 
         Button previousButton = new Button("<");
         previousButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 8 12; -fx-cursor: hand;");
@@ -127,7 +127,7 @@ public class MainApp extends Application {
                 } else {
                     System.err.println("Image not found: " + path);
                 }
-                machineView.setFitHeight(220); // Modifica la dimensione di tutti i dispenser qui
+                machineView.setFitHeight(240); // Modifica la dimensione di tutti i dispenser qui
                 machineView.setPreserveRatio(true);
 
                 switch (path) {
@@ -151,8 +151,8 @@ public class MainApp extends Application {
             }
 
             // posizioni globali dei dispenser
-            dispensersBox.setLayoutX(165); // aumenta per spostare a destra
-            dispensersBox.setLayoutY(48); // aumenta per spostare in basso
+            dispensersBox.setLayoutX(167); // aumenta per spostare a destra
+            dispensersBox.setLayoutY(30); // aumenta per spostare in basso
 
             // ----- CHEF + CONVEYOR -----
             chefView.setLayoutX(30);

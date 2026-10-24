@@ -21,6 +21,7 @@ import javafx.scene.Group;
 import javafx.util.Duration;
 
 import java.net.URL;
+import java.util.List;
 
 public class BurgerView extends StackPane {
     private static final double STANDARD_WIDTH = 140;
@@ -31,7 +32,7 @@ public class BurgerView extends StackPane {
     private static final double TRAY_WIDTH = 130;
     private static final double TRAY_HEIGHT = 30;
     private static final int STATION_COUNT = 6;
-    private static final double[] DEFAULT_STATION_X = {70, 194, 318, 442, 566, 690};
+    private static final double[] DEFAULT_STATION_X = {70, 200, 400, 580, 750, 690};
 
     private final Group beltLines = new Group();
     private final StackPane movingStack = new StackPane();
@@ -248,6 +249,8 @@ public class BurgerView extends StackPane {
         stackTransition.play();
     }
 
+    // In BurgerView.java
+
     public void renderBurger(Burger burger) {
         burgerLayers.getChildren().clear();
         if (burger == null) {
@@ -255,31 +258,45 @@ public class BurgerView extends StackPane {
         }
 
         BreadShape shape = burger.getShape() == null ? BreadShape.CLASSIC : burger.getShape();
-        boolean isBaguette = shape == BreadShape.BAGUETTE;
+        boolean isBaguette = (shape == BreadShape.BAGUETTE);
 
-        burgerLayers.getChildren().add(createImageView(
+        // 1. PANE SUPERIORE (Top Bun) - Deve stare in CIMA e in primissimo piano (ViewOrder 0)
+        ImageView topBun = createImageView(
                 "/assets/bun_" + shape.name().toLowerCase() + "_top.png",
-                isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH, 45));
+                isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH, 45);
+        burgerLayers.getChildren().add(topBun);
 
-        // extra ingredients
-        for (Ingredient ingredient : burger.getIngredients()) {
+        // 2. INGREDIENTI AGGIUNTI (Invertiamo la lista per posizionare l'ultimo ingrediente aggiunto SUBITO SOTTO IL TOP BUN)
+        // Se l'utente aggiunge Carne e poi Cheddar, il Cheddar appare sopra la Carne!
+        List<Ingredient> ingredients = burger.getIngredients();
+        for (int i = ingredients.size() - 1; i >= 0; i--) {
+            Ingredient ingredient = ingredients.get(i);
             burgerLayers.getChildren().add(createIngredientNode(
                     ingredientImagePath(ingredient.getType()), isBaguette, INGREDIENT_HEIGHT));
         }
 
-        // sauce
+        // 3. SALSA (se presente)
         if (burger.getSauce() != null) {
             burgerLayers.getChildren().add(createIngredientNode(
                     ingredientImagePath(burger.getSauce()), isBaguette, 20));
         }
 
-        burgerLayers.getChildren().add(createImageView(
+        // 4. PANE INFERIORE (Bottom Bun) - Inserito per ultimo, sta alla BASE dello stack
+        ImageView bottomBun = createImageView(
                 "/assets/bun_" + shape.name().toLowerCase() + "_bottom.png",
-                isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH, 45));
+                isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH, 45);
+        burgerLayers.getChildren().add(bottomBun);
 
-        // fries are optional
+        // 5. PATATINE OPZIONALI
         if (burger.isFriesPresent()) {
             burgerLayers.getChildren().add(createImageView("/assets/fries.png", STANDARD_WIDTH, 45));
+        }
+
+        // 6. Assegna il ViewOrder dinamico per la sovrapposizione visiva 3D:
+        // Gli elementi in cima alla VBox (Top Bun e gli ultimi ingredienti) vengono disegnati DAVANTI agli elementi sottostanti
+        int totalElements = burgerLayers.getChildren().size();
+        for (int index = 0; index < totalElements; index++) {
+            burgerLayers.getChildren().get(index).setViewOrder(index);
         }
     }
 

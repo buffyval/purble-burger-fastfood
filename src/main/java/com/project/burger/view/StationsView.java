@@ -1,5 +1,6 @@
 package com.project.burger.view;
 
+import com.project.burger.controller.ConveyorController;
 import com.project.burger.controller.StationController;
 import com.project.burger.model.BreadShape;
 import com.project.burger.model.IngredientType;
@@ -19,43 +20,71 @@ import java.net.URL;
 
 public class StationsView extends HBox {
 
-    public StationsView(StationController stationController) {
+    private final Runnable refreshCallback;
+    private final ConveyorController conveyorController;
+
+    public StationsView(StationController stationController, ConveyorController conveyorController, Runnable refreshCallback) {
+        this.refreshCallback = refreshCallback;
+        this.conveyorController = conveyorController;
 
         setAlignment(Pos.CENTER);
         setSpacing(10);
 
-        // 1. Shape (Classic, Baguette, Bagel)
+        // 1. Shape (Classic, Baguette, Bagel) -> Stazione 0
         getChildren().add(createStation("Shape", createShapeButtons(stationController)));
 
-        // 2. Meat (Carne & Prosciutto)
+        // 2. Meat (Carne & Prosciutto) -> Stazione 1
         Button pattyButton = createImageButton("/assets/ingredient_patty.png", 35);
-        pattyButton.setOnAction(event -> stationController.addAddition(IngredientType.PATTY)); // o stationController.addMeat() per Patty
+        pattyButton.setOnAction(event -> {
+            if (getCurrentStation() == 1) {
+                stationController.addAddition(IngredientType.PATTY);
+                triggerRefresh();
+            }
+        });
 
         Button hamButton = createImageButton("/assets/ingredient_ham.png", 35);
-        hamButton.setOnAction(event -> stationController.addAddition(IngredientType.HAM));
+        hamButton.setOnAction(event -> {
+            if (getCurrentStation() == 1) {
+                stationController.addAddition(IngredientType.HAM);
+                triggerRefresh();
+            }
+        });
 
         VBox meatGroup = new VBox(5, pattyButton, hamButton);
         meatGroup.setAlignment(Pos.CENTER);
 
         getChildren().add(createStation("Meat", meatGroup));
 
-        // 3. Additions 1 (Verdure: Lattuga, Cipolla, Pomodoro)
+        // 3. Additions 1 (Verdure: Lattuga, Cipolla, Pomodoro) -> Stazione 2
         getChildren().add(createStation("Additions", createVeggieButtons(stationController)));
 
-        // 4. Additions 2 (Pickles / Cheese)
+        // 4. Additions 2 (Pickles / Cheese) -> Stazione 3
         getChildren().add(createStation("Additions", createCheesePicklesButtons(stationController)));
 
-        // 5. Fries
+        // 5. Fries & Sauces -> Stazione 4
         Button friesButton = createImageButton("/assets/fries.png", 35);
-        friesButton.setOnAction(event -> stationController.addFries());
-        // getChildren().add(createStation("Fries", friesButton));
+        friesButton.setOnAction(event -> {
+            if (getCurrentStation() == 4) {
+                stationController.addFries();
+                triggerRefresh();
+            }
+        });
 
-        // 6. Sauces (Ketchup and Mustard)
         Button ketchupButton = createImageButton("/assets/sauce_ketchup.png", 35);
-        ketchupButton.setOnAction(event -> stationController.applySauce(IngredientType.KETCHUP));
-        // getChildren().add(createStation("Sauces", createSauceButtons(stationController)));
+        ketchupButton.setOnAction(event -> {
+            if (getCurrentStation() == 4) {
+                stationController.applySauce(IngredientType.KETCHUP);
+                triggerRefresh();
+            }
+        });
+
         Button mustardButton = createImageButton("/assets/sauce_mustard.png", 35);
-        mustardButton.setOnAction(event -> stationController.applySauce(IngredientType.MUSTARD));
+        mustardButton.setOnAction(event -> {
+            if (getCurrentStation() == 4) { // Corretto sintassi con 'if'
+                stationController.applySauce(IngredientType.MUSTARD);
+                triggerRefresh();
+            }
+        });
 
         HBox saucesGroup = new HBox(5, ketchupButton, mustardButton);
         saucesGroup.setAlignment(Pos.CENTER);
@@ -65,8 +94,23 @@ public class StationsView extends HBox {
 
         getChildren().add(createStation("Fries & Sauces", friesAndSaucesGroup));
 
-        // 7. Drinks (erogatore automatico)
+        // 6. Drinks (erogatore automatico) -> Stazione 5
         getChildren().add(createStation("Drinks", createDrinkDispenser()));
+    }
+
+    // Costruttore overload per compatibilità se passi solo stationController e refresh
+    public StationsView(StationController stationController, Runnable refreshCallback) {
+        this(stationController, null, refreshCallback);
+    }
+
+    private int getCurrentStation() {
+        return conveyorController != null ? conveyorController.getCurrentStationIndex() : 0;
+    }
+
+    private void triggerRefresh() {
+        if (refreshCallback != null) {
+            refreshCallback.run();
+        }
     }
 
     private VBox createStation(String name, javafx.scene.Node... controls) {
@@ -85,33 +129,28 @@ public class StationsView extends HBox {
         for (int i = 0; i < buttons.length; i++) {
             BreadShape shape = BreadShape.values()[i];
             buttons[i] = createImageButton("/assets/bun_" + shape.name().toLowerCase() + "_top.png", 30);
-            buttons[i].setOnAction(event -> controller.applyShape(shape));
+            buttons[i].setOnAction(event -> {
+                if (getCurrentStation() == 0) { // Corretto usando controller/getCurrentStation
+                    controller.applyShape(shape);
+                    triggerRefresh();
+                }
+            });
         }
         return buttons;
     }
 
-    // Verdure: Lattuga, Cipolla, Pomodoro
     private javafx.scene.Node[] createVeggieButtons(StationController controller) {
         return new javafx.scene.Node[]{
-                createIngredientBtn(controller, IngredientType.LETTUCE),
-                createIngredientBtn(controller, IngredientType.ONION),
-                createIngredientBtn(controller, IngredientType.TOMATO)
+                createIngredientBtn(controller, IngredientType.LETTUCE, 2),
+                createIngredientBtn(controller, IngredientType.ONION, 2),
+                createIngredientBtn(controller, IngredientType.TOMATO, 2)
         };
     }
 
-    // Formaggio e Cetriolini
     private javafx.scene.Node[] createCheesePicklesButtons(StationController controller) {
         return new javafx.scene.Node[]{
-                createIngredientBtn(controller, IngredientType.CHEESE),
-                createIngredientBtn(controller, IngredientType.PICKLES)
-        };
-    }
-
-    // Salse
-    private javafx.scene.Node[] createSauceButtons(StationController controller) {
-        return new javafx.scene.Node[]{
-                createIngredientBtn(controller, IngredientType.KETCHUP),
-                createIngredientBtn(controller, IngredientType.MUSTARD)
+                createIngredientBtn(controller, IngredientType.CHEESE, 3),
+                createIngredientBtn(controller, IngredientType.PICKLES, 3)
         };
     }
 
@@ -129,9 +168,14 @@ public class StationsView extends HBox {
         return graphic;
     }
 
-    private Button createIngredientBtn(StationController controller, IngredientType type) {
+    private Button createIngredientBtn(StationController controller, IngredientType type, int requiredStation) {
         Button button = createImageButton("/assets/ingredient_" + type.name().toLowerCase() + ".png", 28);
-        button.setOnAction(event -> controller.addAddition(type));
+        button.setOnAction(event -> {
+            if (getCurrentStation() == requiredStation) {
+                controller.addAddition(type);
+                triggerRefresh();
+            }
+        });
         return button;
     }
 
