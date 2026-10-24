@@ -7,20 +7,14 @@ public class ConveyorController {
     private Burger burger;
 
     public void moveToNextStation() {
-        if (currentStationIndex < 6) {
+        if (currentStationIndex < 5) {
             currentStationIndex++;
-            if (currentStationIndex == 4 && hasNoFries()) {
-                currentStationIndex = 6;
-            }
         }
     }
 
     public void moveToPreviousStation() {
         if (currentStationIndex > 0) {
             currentStationIndex--;
-            if (currentStationIndex == 4 && hasNoFries()) {
-                currentStationIndex = 3;
-            }
         }
     }
 

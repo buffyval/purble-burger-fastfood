@@ -146,10 +146,10 @@ public class BurgerView extends StackPane {
                 BELT_WIDTH, BELT_HEIGHT,
                 0.0, BELT_HEIGHT
         );
-        beltLines.setClip(clipPolygon);
+        beltLines.setClip(clipPolygon); // maschera di ritaglio
 
         // Linee di scorrimento
-        for (double x = -200; x < BELT_WIDTH + 200; x += 200) { // 100 è la distanza tra le linee
+        for (double x = -1000; x < BELT_WIDTH + 1000; x += 200) {
             double topX = x + slantOffsetLeft; // Inclinazione che segue esattamente il trapezio
             Line line = new Line(topX, 0, x, BELT_HEIGHT);
             line.setStroke(Color.web("#444444"));
@@ -190,9 +190,10 @@ public class BurgerView extends StackPane {
         }
         // Usa la stessa durata del vassoio (450ms) per sincronizzare il movimento
         beltTransition = new TranslateTransition(Duration.millis(450), beltLines);
-        beltTransition.setByX(forward ? 124 : -124); // Muove le linee in base alla direzione
+        beltTransition.setByX(forward ? 200 : -200); // Muove le linee in base alla direzione
         beltTransition.setCycleCount(1); // Esegue una sola volta
         beltTransition.setInterpolator(Interpolator.EASE_BOTH);
+        beltTransition.setOnFinished(e -> beltLines.setTranslateX(0));
         beltTransition.play();
     }
 
