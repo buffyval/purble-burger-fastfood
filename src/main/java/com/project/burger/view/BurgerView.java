@@ -3,6 +3,7 @@ package com.project.burger.view;
 import com.project.burger.model.BreadShape;
 import com.project.burger.model.Burger;
 import com.project.burger.model.Ingredient;
+import com.project.burger.model.IngredientType;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
@@ -11,7 +12,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Polygon;
@@ -21,12 +21,13 @@ import javafx.scene.Group;
 import javafx.util.Duration;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BurgerView extends StackPane {
-    private static final double STANDARD_WIDTH = 140;
-    private static final double BAGUETTE_WIDTH = 260;
-    private static final double INGREDIENT_HEIGHT = 35;
+    private static final double STANDARD_WIDTH = 70;
+    private static final double BAGUETTE_WIDTH = 120;
+    private static final double INGREDIENT_HEIGHT = 70;
     private static final double BELT_WIDTH = 900;
     private static final double BELT_HEIGHT = 50;
     private static final double TRAY_WIDTH = 130;
@@ -36,7 +37,7 @@ public class BurgerView extends StackPane {
 
     private final Group beltLines = new Group();
     private final StackPane movingStack = new StackPane();
-    private final VBox burgerLayers = new VBox(-5);
+    private final StackPane burgerLayers = new StackPane();
     private final double[] stationX = DEFAULT_STATION_X.clone();
     private int currentStation;
     private TranslateTransition stackTransition;
@@ -76,8 +77,8 @@ public class BurgerView extends StackPane {
 
         burgerContainer.setAlignment(Pos.BOTTOM_CENTER);
 
-        final double BURGER_X_OFFSET = 40;
-        final double BURGER_Y_OFFSET = 20;
+        final double BURGER_X_OFFSET = 10; // offset per centrare il panino sul vassoio
+        final double BURGER_Y_OFFSET = 50;
         double centeredBurgerX = (TRAY_VISUAL_WIDTH - STANDARD_WIDTH) / 2;
         burgerContainer.setTranslateX (centeredBurgerX + BURGER_X_OFFSET);
         burgerContainer.setTranslateY(BURGER_Y_OFFSET);
@@ -249,8 +250,6 @@ public class BurgerView extends StackPane {
         stackTransition.play();
     }
 
-    // In BurgerView.java
-
     public void renderBurger(Burger burger) {
         burgerLayers.getChildren().clear();
         if (burger == null) {
@@ -259,53 +258,94 @@ public class BurgerView extends StackPane {
 
         BreadShape shape = burger.getShape() == null ? BreadShape.CLASSIC : burger.getShape();
         boolean isBaguette = (shape == BreadShape.BAGUETTE);
+        double bunWidth = isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH;
 
-        // 1. PANE SUPERIORE (Top Bun) - Deve stare in CIMA e in primissimo piano (ViewOrder 0)
+        List<Node> layers = new ArrayList<>();
+
+        // 1. PANE SUPERIORE (Top Bun) - In cima alla lista per stare davanti (viewOrder 0)
         ImageView topBun = createImageView(
-                "/assets/bun_" + shape.name().toLowerCase() + "_top.png",
-                isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH, 45);
-        burgerLayers.getChildren().add(topBun);
+                "/assets/bun_" + shape.name().toLowerCase() + "_top.png", bunWidth, INGREDIENT_HEIGHT);
+        topBun.setUserData(null);
+        layers.add(topBun);
 
-        // 2. INGREDIENTI AGGIUNTI (Invertiamo la lista per posizionare l'ultimo ingrediente aggiunto SUBITO SOTTO IL TOP BUN)
-        // Se l'utente aggiunge Carne e poi Cheddar, il Cheddar appare sopra la Carne!
+        // 2. INGREDIENTI (Dall'alto verso il basso)
+        // Invertiamo l'ordine degli ingredienti aggiunti per posizionare gli ultimi appena sotto il pane superiore
         List<Ingredient> ingredients = burger.getIngredients();
         for (int i = ingredients.size() - 1; i >= 0; i--) {
-            Ingredient ingredient = ingredients.get(i);
-            burgerLayers.getChildren().add(createIngredientNode(
-                    ingredientImagePath(ingredient.getType()), isBaguette, INGREDIENT_HEIGHT));
+            IngredientType type = ingredients.get(i).getType();
+            Node ingredientNode = createIngredientNode(ingredientImagePath(type), isBaguette);
+            ingredientNode.setUserData(type);
+            layers.add(ingredientNode);
         }
 
-        // 3. SALSA (se presente)
+        // 3. SALSA OPZIONALE
         if (burger.getSauce() != null) {
-            burgerLayers.getChildren().add(createIngredientNode(
-                    ingredientImagePath(burger.getSauce()), isBaguette, 20));
+            Node sauceNode = createIngredientNode(ingredientImagePath(burger.getSauce()), isBaguette);
+            sauceNode.setUserData(burger.getSauce());
+            layers.add(sauceNode);
         }
 
-        // 4. PANE INFERIORE (Bottom Bun) - Inserito per ultimo, sta alla BASE dello stack
+        // 4. PANE INFERIORE (Bottom Bun)
         ImageView bottomBun = createImageView(
-                "/assets/bun_" + shape.name().toLowerCase() + "_bottom.png",
-                isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH, 45);
-        burgerLayers.getChildren().add(bottomBun);
+                "/assets/bun_" + shape.name().toLowerCase() + "_bottom.png", bunWidth, INGREDIENT_HEIGHT);
+        bottomBun.setUserData(null);
+        layers.add(bottomBun);
 
         // 5. PATATINE OPZIONALI
         if (burger.isFriesPresent()) {
-            burgerLayers.getChildren().add(createImageView("/assets/fries.png", STANDARD_WIDTH, 45));
+            ImageView friesView = createImageView("/assets/fries.png", STANDARD_WIDTH, 45);
+            friesView.setUserData(null);
+            layers.add(friesView);
         }
 
-        // 6. Assegna il ViewOrder dinamico per la sovrapposizione visiva 3D:
-        // Gli elementi in cima alla VBox (Top Bun e gli ultimi ingredienti) vengono disegnati DAVANTI agli elementi sottostanti
-        int totalElements = burgerLayers.getChildren().size();
-        for (int index = 0; index < totalElements; index++) {
-            burgerLayers.getChildren().get(index).setViewOrder(index);
+        // Applicazione del posizionamento sovrapposto su StackPane
+        layoutLayers(layers, isBaguette);
+    }
+
+    @SuppressWarnings("DuplicatedCode")
+    private void layoutLayers(List<Node> layers, boolean isBaguette) {
+        // Valore iniziale di coordinata Y per centrare il panino sul vassoio
+        double currentY = -40;
+
+        for (int i = 0; i < layers.size(); i++) {
+            Node node = layers.get(i);
+            node.setTranslateY(currentY);
+
+            // Assegna il livello di sovrapposizione Z (il Top Bun sta davanti agli ingredienti)
+            node.setViewOrder(i);
+            burgerLayers.getChildren().add(node);
+
+            // Incrementa la coordinata Y per il livello successivo
+            currentY += getLayerStep(node, isBaguette);
         }
     }
 
-    private Node createIngredientNode(String resourcePath, boolean isBaguette, double height) {
-        return createImageView(resourcePath, isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH, height);
+    @SuppressWarnings("DuplicatedCode")
+    private double getLayerStep(Node node, boolean isBaguette) {
+        Object data = node.getUserData();
+
+        // Se non è un ingrediente, è un bun (pane)
+        if (!(data instanceof IngredientType ingredient)) {
+            return isBaguette ? 10 : 13; // proporzionati all'INGREDIENT_HEIGHT
+        }
+
+        // Valori di distanza/passo specifici calibrati identici a OrderDisplayView
+        return switch (ingredient) {
+            case LETTUCE, HAM -> 7;
+            case CHEESE -> 3;
+            case ONION -> 1.5;
+            case PICKLES, TOMATO -> 8;
+            case PATTY -> 9;
+            default -> 11;
+        };
     }
 
-    private String ingredientImagePath(com.project.burger.model.IngredientType ingredient) {
-        if (ingredient == com.project.burger.model.IngredientType.HAM) {
+    private Node createIngredientNode(String resourcePath, boolean isBaguette) {
+        return createImageView(resourcePath, isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH, INGREDIENT_HEIGHT);
+    }
+
+    private String ingredientImagePath(IngredientType ingredient) {
+        if (ingredient == IngredientType.HAM) {
             return "/assets/ingredient_ham.png";
         }
         return "/assets/ingredient_" + ingredient.name().toLowerCase() + ".png";
@@ -319,7 +359,7 @@ public class BurgerView extends StackPane {
         }
         imageView.setFitWidth(fitWidth);
         imageView.setFitHeight(fitHeight);
-        imageView.setPreserveRatio(true);
+        imageView.setPreserveRatio(false);
         return imageView;
     }
 }
