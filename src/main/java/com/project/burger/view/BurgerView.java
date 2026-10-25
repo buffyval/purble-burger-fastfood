@@ -62,13 +62,17 @@ public class BurgerView extends StackPane {
         Node tray = createTray();
 
         /*
-         * Larghezza visiva reale del vassoio:
+- Larghezza visiva reale del vassoio:
+
          */
         final double TRAY_VISUAL_WIDTH = TRAY_WIDTH + 40;
 
         /*
-         * Contenitore del panino.
+- Contenitore del panino.
+
          */
+        burgerLayers.setAlignment(Pos.BOTTOM_CENTER);
+
         StackPane burgerContainer = new StackPane(burgerLayers);
 
         burgerContainer.setPrefWidth(STANDARD_WIDTH);
@@ -77,17 +81,19 @@ public class BurgerView extends StackPane {
 
         burgerContainer.setAlignment(Pos.BOTTOM_CENTER);
 
-        final double BURGER_X_OFFSET = 10; // offset per centrare il panino sul vassoio
-        final double BURGER_Y_OFFSET = 50;
+        final double BURGER_X_OFFSET = 0; // offset per centrare il panino sul vassoio
+        final double BURGER_Y_OFFSET = 50; // inutile modificare questo valore
         double centeredBurgerX = (TRAY_VISUAL_WIDTH - STANDARD_WIDTH) / 2;
-        burgerContainer.setTranslateX (centeredBurgerX + BURGER_X_OFFSET);
+        burgerContainer.setTranslateX(centeredBurgerX + BURGER_X_OFFSET);
         burgerContainer.setTranslateY(BURGER_Y_OFFSET);
 
         StackPane.setMargin(burgerContainer, new javafx.geometry.Insets(0, 0, BURGER_Y_OFFSET, 0));
 
         /*
-         * Contenitore comune di vassoio e panino.
-         * Fondamentale: blocchiamo la larghezza.
+- Contenitore comune di vassoio e panino.
+
+- Fondamentale: blocchiamo la larghezza.
+
          */
         StackPane trayAndBurger = new StackPane();
 
@@ -96,7 +102,8 @@ public class BurgerView extends StackPane {
         trayAndBurger.setMaxSize(TRAY_VISUAL_WIDTH, 180);
 
         /*
-         * Allineamento specifico dei due elementi.
+- Allineamento specifico dei due elementi.
+
          */
         StackPane.setAlignment(tray, Pos.BOTTOM_LEFT);
         StackPane.setAlignment(burgerContainer, Pos.BOTTOM_LEFT);
@@ -104,8 +111,10 @@ public class BurgerView extends StackPane {
         trayAndBurger.getChildren().addAll(tray, burgerContainer);
 
         /*
-         * Posizioniamo l'intero gruppo vassoio + panino
-         * sul lato sinistro del movingStack.
+- Posizioniamo l'intero gruppo vassoio + panino
+
+- sul lato sinistro del movingStack.
+
          */
         StackPane.setAlignment(trayAndBurger, Pos.BOTTOM_LEFT);
 
@@ -170,7 +179,7 @@ public class BurgerView extends StackPane {
 
         // Punti del Parallelogramma (inclinato verso destra)
         trayPolygon.getPoints().addAll(
-                traySlant, 0.0,                 // 1. In alto a sinistra (spostato a destra di 40px)
+                traySlant, 0.0,        // 1. In alto a sinistra (spostato a destra di 40px)
                 TRAY_WIDTH + traySlant, 0.0,     // 2. In alto a destra (spostato a destra di 40px)
                 TRAY_WIDTH, TRAY_HEIGHT,         // 3. In basso a destra
                 0.0, TRAY_HEIGHT                 // 4. In basso a sinistra
@@ -184,7 +193,8 @@ public class BurgerView extends StackPane {
     }
 
     /**
-     * Esegue l'animazione delle scanalature del nastro solo una volta per la distanza richiesta.
+     - Esegue l'animazione delle scanalature del nastro solo una volta per la distanza richiesta.
+
      */
     public void animateConveyor(boolean forward) {
         if (beltTransition != null) {
@@ -200,7 +210,8 @@ public class BurgerView extends StackPane {
     }
 
     /**
-     * Supplies the actual dispenser center positions in this view's coordinate system.
+     - Supplies the actual dispenser center positions in this view's coordinate system.
+
      */
     public void setStationCenters(double... centers) {
         if (centers == null || centers.length != STATION_COUNT) {
@@ -262,7 +273,7 @@ public class BurgerView extends StackPane {
 
         List<Node> layers = new ArrayList<>();
 
-        // 1. PANE SUPERIORE (Top Bun) - In cima alla lista per stare davanti (viewOrder 0)
+        // 1. PANE SUPERIORE (Top Bun)
         ImageView topBun = createImageView(
                 "/assets/bun_" + shape.name().toLowerCase() + "_top.png", bunWidth, INGREDIENT_HEIGHT);
         topBun.setUserData(null);
@@ -304,10 +315,18 @@ public class BurgerView extends StackPane {
 
     @SuppressWarnings("DuplicatedCode")
     private void layoutLayers(List<Node> layers, boolean isBaguette) {
-        // Valore iniziale di coordinata Y per centrare il panino sul vassoio
-        double currentY = -40;
+        int totalElements = layers.size();
+        if (totalElements == 0) return;
 
-        for (int i = 0; i < layers.size(); i++) {
+        double accumHeight = 0;
+        for (int i = 0; i < totalElements - 1; i++) {
+            accumHeight += getLayerStep(layers.get(i), isBaguette);
+        }
+
+        // Valore iniziale di coordinata Y per centrare il panino sul vassoio
+        double currentY = -accumHeight - 55; // MODIFICA QUESTO VALORE PER SPOSTARE IL PANINO SUL VASSOIO
+
+        for (int i = 0; i < totalElements; i++) {
             Node node = layers.get(i);
             node.setTranslateY(currentY);
 
