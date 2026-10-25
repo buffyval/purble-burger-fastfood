@@ -33,9 +33,7 @@ public class Order {
         return targetFries;
     }
 
-    public IngredientType getTargetSauce() {
-        return targetSauce;
-    }
+    public IngredientType getTargetSauce() { return targetSauce; }
 
     public DrinkType getTargetDrink() {
         return targetDrink;
