@@ -6,10 +6,9 @@ import com.project.burger.model.Burger;
 import com.project.burger.model.Ingredient;
 import com.project.burger.model.IngredientType;
 import com.project.burger.model.DrinkType;
-import com.project.burger.model.Order;
 
 public class StationController {
-    private Burger burger;
+    private final Burger burger;
     private final GameEngine gameEngine;
 
     public StationController(Burger burger, GameEngine gameEngine) {
@@ -57,11 +56,8 @@ public class StationController {
         burger.setSauce(sauceType);
     }
 
-    public void triggerMechanicArm(Burger burger) { gameEngine.submitBurger(burger); }
-
-    public void triggerMechanicArm() {
+    public void deliverBurger() {
         gameEngine.submitBurger(burger);
-        // Azzera il panino corrente per consentire la preparazione del nuovo ordine
         resetBurger();
     }
 

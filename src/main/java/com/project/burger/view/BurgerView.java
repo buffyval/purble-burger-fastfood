@@ -6,7 +6,6 @@ import com.project.burger.model.Ingredient;
 import com.project.burger.model.IngredientType;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
-import javafx.animation.PauseTransition;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -34,7 +33,6 @@ public class BurgerView extends StackPane {
     private static final double TRAY_HEIGHT = 30;
     private static final int STATION_COUNT = 6;
     private static final double[] DEFAULT_STATION_X = {70, 200, 400, 580, 750, 690};
-    private ImageView packageView;
 
     private final Group beltLines = new Group();
     private final StackPane movingStack = new StackPane();
@@ -109,11 +107,6 @@ public class BurgerView extends StackPane {
         StackPane.setAlignment(burgerContainer, Pos.BOTTOM_LEFT);
 
         trayAndBurger.getChildren().addAll(tray, burgerContainer);
-
-        // aggiunta immagine del pacco per la consegna
-        packageView = createImageView("/assets/package_deliver.png", STANDARD_WIDTH, 120);
-        packageView.setVisible(false);
-        burgerContainer.getChildren().add(packageView);
 
         /*
 - Posizioniamo l'intero gruppo vassoio + panino
@@ -211,26 +204,6 @@ public class BurgerView extends StackPane {
         beltTransition.setInterpolator(Interpolator.EASE_BOTH);
         beltTransition.setOnFinished(e -> beltLines.setTranslateX(0));
         beltTransition.play();
-    }
-
-    /**
-     - Supplies the actual dispenser center positions in this view's coordinate system.
-
-     */
-    public void setStationCenters(double... centers) {
-        if (centers == null || centers.length != STATION_COUNT) {
-            throw new IllegalArgumentException("Exactly six station centers are required");
-        }
-        System.arraycopy(centers, 0, stationX, 0, STATION_COUNT);
-        moveStackTo(stationX[currentStation], false);
-    }
-
-    public void moveConveyorNext() {
-        moveConveyorTo(Math.min(currentStation + 1, STATION_COUNT - 1), true);
-    }
-
-    public void moveConveyorPrevious() {
-        moveConveyorTo(Math.max(currentStation - 1, 0), false);
     }
 
     public void moveConveyorTo(int stationIndex) {
@@ -386,23 +359,4 @@ public class BurgerView extends StackPane {
         return imageView;
     }
 
-    public void showDeliveryPackage(Runnable onFinishedCallback) {
-        if (packageView == null) {
-            packageView = createImageView("/assets/package_deliver.png", STANDARD_WIDTH + 40, 120);
-            burgerLayers.getChildren().add(packageView);
-        }
-
-        packageView.setVisible(true);
-        packageView.toFront();
-
-        PauseTransition pause = new PauseTransition(Duration.seconds(2));
-        pause.setOnFinished(event -> {
-            packageView.setVisible(false);
-            burgerLayers.getChildren().clear(); // Scompare il panino dal nastro
-            if (onFinishedCallback != null) {
-                onFinishedCallback.run();
-            }
-        });
-        pause.play();
-    }
 }

@@ -38,6 +38,7 @@ public class GameEngine {
         }
     }
 
+    @SuppressWarnings("unused") // questo metodo in realtà viene utilizzato
     public GameState getState() {
         return state;
     }

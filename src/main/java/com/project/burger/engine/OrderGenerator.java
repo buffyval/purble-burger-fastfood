@@ -46,7 +46,7 @@ public class OrderGenerator {
         }
 
         boolean fries = random.nextBoolean();
-        IngredientType sauce = random.nextBoolean()
+        IngredientType sauce = (fries && random.nextBoolean())
                 ? Arrays.stream(IngredientType.values())
                 .filter(type -> "SAUCE".equals(type.getCategory()))
                 .toList()

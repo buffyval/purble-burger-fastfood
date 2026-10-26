@@ -3,8 +3,8 @@ package com.project.burger.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
+@SuppressWarnings("ClassCanBeRecord") // I prefer to keep the standard class structure
 public class Order {
     private final BreadShape targetShape;
     private final List<IngredientType> targetIngredients;
@@ -42,7 +42,7 @@ public class Order {
     public boolean matches(Burger burger) {
         List<IngredientType> burgerIngredients = burger.getIngredients().stream()
                 .map(Ingredient::getType)
-                .collect(Collectors.toList());
+                .toList();
 
         return Objects.equals(targetShape, burger.getShape())
                 && targetIngredients.equals(burgerIngredients)

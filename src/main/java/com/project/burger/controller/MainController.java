@@ -1,22 +1,19 @@
 package com.project.burger.controller;
 
 import com.project.burger.engine.GameEngine;
-import com.project.burger.engine.GameState;
 import com.project.burger.model.Burger;
-import com.project.burger.view.BurgerView;
 
 public class MainController {
     private final GameEngine gameEngine;
     private final ConveyorController conveyorController;
     private final StationController stationController;
-    private Burger currentBurger;
+    private final Burger currentBurger;
     private boolean orderCompletedAtDrinks;
 
     public MainController() {
         gameEngine = new GameEngine();
         conveyorController = new ConveyorController();
         currentBurger = new Burger();
-        conveyorController.setBurger(currentBurger);
         stationController = new StationController(currentBurger, gameEngine);
     }
 
@@ -24,7 +21,7 @@ public class MainController {
         conveyorController.moveToNextStation();
         if (conveyorController.getCurrentStationIndex() == 6 && !orderCompletedAtDrinks) {
             stationController.dispenseDrink();
-            stationController.triggerMechanicArm();
+            stationController.deliverBurger();
             orderCompletedAtDrinks = true;
         }
     }
@@ -40,27 +37,28 @@ public class MainController {
         orderCompletedAtDrinks = false;
     }
 
-    public void handleDeliverBurger(BurgerView burgerView, Runnable refreshUI) {
-        // 1. Invio del panino corrente per la registrazione dell'ordine e del punteggio
+    /*
+    * public void handleDeliverBurger(BurgerView burgerView, Runnable refreshUI) {
+        // 1. Invia il panino al GameEngine per calcolare il punteggio
         gameEngine.submitBurger(currentBurger);
 
-        // 2. Avvio dell'animazione di copertura di 2 secondi
+        // 2. Avvia l'animazione del pacchetto per 2 secondi
         burgerView.showDeliveryPackage(() -> {
             // Questa callback viene eseguita DOPO i 2 secondi:
             if (gameEngine.getState() == GameState.PLAYING) {
                 this.currentBurger = new Burger();
-                conveyorController.reset(); // Riporta l'indice del nastro a 0 (prima stazione)
+                conveyorController.reset(); // Riporta l'indice del nastro alla Stazione 0
             }
-            // Aggiorna la schermata (Order #X incrementato, nuovi target e vassoio pulito)
+            // Aggiorna la schermata (Order #X incrementato e vassoio pulito)
             refreshUI.run();
         });
     }
+    * */
 
     public GameEngine getGameEngine() {
         return gameEngine;
     }
 
-    @SuppressWarnings("unused")
     public ConveyorController getConveyorController() {
         return conveyorController;
     }

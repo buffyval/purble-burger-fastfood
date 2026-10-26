@@ -97,20 +97,20 @@ public class StationsView extends HBox {
         VBox actionButtonsGroup = getActionButtonsGroup(stationController);
         getChildren().add(createStation("Actions", actionButtonsGroup));
     }
-
+    
     private VBox getActionButtonsGroup(StationController stationController) {
+        // In StationsView.java -> dentro getActionButtonsGroup
+
         Button deliverButton = new Button("Deliver");
         deliverButton.setStyle("-fx-font-weight: bold; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-cursor: hand;");
         deliverButton.setOnAction(event -> {
-            // Esegue la consegna (verrà gestita l'animazione ed il reset dell'ordine)
-            stationController.triggerMechanicArm();
+            stationController.deliverBurger();
             triggerRefresh();
         });
 
         Button trashButton = new Button("Trash");
         trashButton.setStyle("-fx-font-weight: bold; -fx-background-color: #f44336; -fx-text-fill: white; -fx-cursor: hand;");
         trashButton.setOnAction(event -> {
-            // Scarta l'ordine corrente e ricomincia il panino vuoto
             stationController.resetBurger();
             triggerRefresh();
         });
@@ -125,11 +125,6 @@ public class StationsView extends HBox {
         VBox actionButtonsGroup = new VBox(6, deliverButton, trashButton, submitDrinkButton);
         actionButtonsGroup.setAlignment(Pos.CENTER);
         return actionButtonsGroup;
-    }
-
-    // Costruttore overload per compatibilità se passi solo stationController e refresh
-    public StationsView(StationController stationController, Runnable refreshCallback) {
-        this(stationController, null, refreshCallback);
     }
 
     private int getCurrentStation() {
@@ -183,6 +178,7 @@ public class StationsView extends HBox {
         };
     }
 
+    @SuppressWarnings("unused") // mi servirà in seguito!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private javafx.scene.Node createDrinkDispenser() {
         Rectangle dispenser = new Rectangle(42, 32, Color.DARKSLATEGRAY);
         dispenser.setArcWidth(8);

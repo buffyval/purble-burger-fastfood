@@ -1,5 +1,6 @@
 package com.project.burger.model;
 
+@SuppressWarnings("ClassCanBeRecord") // preferisco mantenere il formato di classe standard
 public class Ingredient {
     private final IngredientType type;
     private final String name;
