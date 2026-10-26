@@ -19,22 +19,21 @@ public class GameEngine {
     }
 
     public void startGame() {
-        currentBurgerCount = 0;
+        currentBurgerCount = 1;
         scoreStars = 0;
         state = GameState.PLAYING;
         currentOrder = orderGenerator.generateRandomOrder();
     }
 
     public void submitBurger(Burger burger) {
-        if (currentOrder.matches(burger) && scoreStars < MAX_SCORE_STARS) {
+        if (currentOrder != null && currentOrder.matches(burger) && scoreStars < MAX_SCORE_STARS) {
             scoreStars++;
         }
 
-        currentBurgerCount++;
-        if (currentBurgerCount >= MAX_BURGERS) {
-            currentBurgerCount = MAX_BURGERS;
+        if (currentBurgerCount >= MAX_BURGERS) { // MAX_BURGERS = 5
             state = GameState.GAME_OVER;
         } else {
+            currentBurgerCount++;
             currentOrder = orderGenerator.generateRandomOrder();
         }
     }

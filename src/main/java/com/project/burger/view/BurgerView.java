@@ -6,6 +6,7 @@ import com.project.burger.model.Ingredient;
 import com.project.burger.model.IngredientType;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
+import javafx.animation.PauseTransition;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -19,10 +20,9 @@ import javafx.scene.shape.StrokeType;
 import javafx.scene.shape.Line;
 import javafx.scene.Group;
 import javafx.util.Duration;
-
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.net.URL;
 
 public class BurgerView extends StackPane {
     private static final double STANDARD_WIDTH = 70;
@@ -34,6 +34,7 @@ public class BurgerView extends StackPane {
     private static final double TRAY_HEIGHT = 30;
     private static final int STATION_COUNT = 6;
     private static final double[] DEFAULT_STATION_X = {70, 200, 400, 580, 750, 690};
+    private ImageView packageView;
 
     private final Group beltLines = new Group();
     private final StackPane movingStack = new StackPane();
@@ -63,7 +64,6 @@ public class BurgerView extends StackPane {
 
         /*
 - Larghezza visiva reale del vassoio:
-
          */
         final double TRAY_VISUAL_WIDTH = TRAY_WIDTH + 40;
 
@@ -110,9 +110,13 @@ public class BurgerView extends StackPane {
 
         trayAndBurger.getChildren().addAll(tray, burgerContainer);
 
+        // aggiunta immagine del pacco per la consegna
+        packageView = createImageView("/assets/package_deliver.png", STANDARD_WIDTH, 120);
+        packageView.setVisible(false);
+        burgerContainer.getChildren().add(packageView);
+
         /*
 - Posizioniamo l'intero gruppo vassoio + panino
-
 - sul lato sinistro del movingStack.
 
          */
@@ -380,5 +384,25 @@ public class BurgerView extends StackPane {
         imageView.setFitHeight(fitHeight);
         imageView.setPreserveRatio(false);
         return imageView;
+    }
+
+    public void showDeliveryPackage(Runnable onFinishedCallback) {
+        if (packageView == null) {
+            packageView = createImageView("/assets/package_deliver.png", STANDARD_WIDTH + 40, 120);
+            burgerLayers.getChildren().add(packageView);
+        }
+
+        packageView.setVisible(true);
+        packageView.toFront();
+
+        PauseTransition pause = new PauseTransition(Duration.seconds(2));
+        pause.setOnFinished(event -> {
+            packageView.setVisible(false);
+            burgerLayers.getChildren().clear(); // Scompare il panino dal nastro
+            if (onFinishedCallback != null) {
+                onFinishedCallback.run();
+            }
+        });
+        pause.play();
     }
 }

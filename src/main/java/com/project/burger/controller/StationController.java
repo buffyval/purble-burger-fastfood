@@ -9,7 +9,7 @@ import com.project.burger.model.DrinkType;
 import com.project.burger.model.Order;
 
 public class StationController {
-    private final Burger burger;
+    private Burger burger;
     private final GameEngine gameEngine;
 
     public StationController(Burger burger, GameEngine gameEngine) {
@@ -21,6 +21,7 @@ public class StationController {
         burger.setShape(shape);
     }
 
+    /* inutile
     public void addMeat() {
         if (burger.getShape() == BreadShape.BAGUETTE) {
             // La baguette prende sempre il prosciutto
@@ -38,26 +39,30 @@ public class StationController {
             }
         }
     }
+    */
 
     public void addAddition(IngredientType ingredientType) {
-        addIngredient(ingredientType);
+        if (burger.getShape() == BreadShape.BAGUETTE && ingredientType == IngredientType.PATTY) {
+            addIngredient(IngredientType.HAM);
+        } else {
+            addIngredient(ingredientType);
+        }
     }
 
     public void addFries() {
         burger.setFriesPresent(true);
     }
 
-    @SuppressWarnings("unused")
     public void applySauce(IngredientType sauceType) {
         burger.setSauce(sauceType);
     }
 
-    public void triggerMechanicArm(Burger burger) {
-        gameEngine.submitBurger(burger);
-    }
+    public void triggerMechanicArm(Burger burger) { gameEngine.submitBurger(burger); }
 
     public void triggerMechanicArm() {
-        triggerMechanicArm(burger);
+        gameEngine.submitBurger(burger);
+        // Azzera il panino corrente per consentire la preparazione del nuovo ordine
+        resetBurger();
     }
 
     public void dispenseDrink() {
@@ -70,4 +75,6 @@ public class StationController {
     private void addIngredient(IngredientType ingredientType) {
         burger.addIngredient(new Ingredient(ingredientType, ingredientType.name(), ""));
     }
+
+    public void resetBurger() { this.burger.clear(); }
 }
