@@ -48,6 +48,24 @@ public class OrderDisplayView extends BorderPane {
     public OrderDisplayView() {
         setPadding(new Insets(20, 0, 0, 25));
 
+        // =====================================================
+        // STELLE
+        // =====================================================
+        HBox starsBox = new HBox(3);
+        starsBox.setAlignment(Pos.TOP_LEFT); // Allineate a sinistra
+        starsBox.setStyle("-fx-padding: 0 0 8 0;");
+
+        IntStream.range(0, STAR_COUNT).forEach(i -> {
+            stars[i] = new Label("☆"); // Stelle inizialmente vuote
+            stars[i].setStyle("-fx-font-size: 24px;");
+            stars[i].setTextFill(Color.web("#d6b36a"));
+            starsBox.getChildren().add(stars[i]);
+        });
+        starsBox.setVisible(true);
+
+        // =====================================================
+        // DISPLAY SCHEDA ORDINE
+        // =====================================================
         orderBox.setAlignment(Pos.CENTER);
         orderBox.setPrefSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
         orderBox.setMinSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
@@ -86,22 +104,9 @@ public class OrderDisplayView extends BorderPane {
             displayContainer.getChildren().add(orderBox);
         }
 
-        // =====================================================
-        // STELLE
-        // =====================================================
-        HBox starsBox = new HBox(3);
-        starsBox.setAlignment(Pos.TOP_RIGHT);
-        starsBox.setStyle("-fx-padding: 10;");
-
-        IntStream.range(0, STAR_COUNT).forEach(i -> {
-            stars[i] = new Label();
-            stars[i].setStyle("-fx-font-size: 24px;");
-            starsBox.getChildren().add(stars[i]);
-        });
-
-        setLeft(displayContainer);
-        setRight(starsBox);
-        starsBox.setVisible(false);
+        // Raggruppa le stelle (sopra) e la scheda dell'ordine (sotto) a SINISTRA
+        VBox leftContainer = new VBox(5, starsBox, displayContainer);
+        setLeft(leftContainer);
     }
 
     // =========================================================
@@ -111,7 +116,7 @@ public class OrderDisplayView extends BorderPane {
         orderBox.getChildren().clear();
 
         int orderNumber = Math.clamp(currentBurgerCount <= 0 ? 1 : currentBurgerCount, 1, 5);
-        orderNumberLabel.setText("Order #" + orderNumber + "⬎");
+        orderNumberLabel.setText("Order #" + orderNumber);
         orderBox.getChildren().add(orderNumberLabel);
 
         // =====================================================
@@ -180,7 +185,7 @@ public class OrderDisplayView extends BorderPane {
         layoutLayers(layers, isBaguette);
 
         // =====================================================
-        // TO-DO LIST OPZIONI (Visualizzabile di default sotto al panino)
+        // TO-DO LIST OPZIONI
         // =====================================================
         boolean hasFries = Optional.ofNullable(order).map(Order::isTargetFries).orElse(false);
         boolean hasKetchup = Optional.ofNullable(order).map(Order::getTargetSauce).filter(s -> s == IngredientType.KETCHUP).isPresent();
@@ -198,7 +203,7 @@ public class OrderDisplayView extends BorderPane {
         orderBox.getChildren().add(todoBox);
 
         // =====================================================
-        // STELLE
+        // AGGIORNAMENTO DELLE STELLE
         // =====================================================
         renderStars(scoreStars);
     }
@@ -283,7 +288,7 @@ public class OrderDisplayView extends BorderPane {
     }
 
     // =========================================================
-    // STELLE
+    // STELLE: METHODS
     // =========================================================
     private void renderStars(int score) {
         int filledStars = clamp(score);
@@ -293,6 +298,10 @@ public class OrderDisplayView extends BorderPane {
             stars[i].setText(isFilled ? "★" : "☆");
             stars[i].setTextFill(isFilled ? Color.web("#f2b632") : Color.web("#d6b36a"));
         });
+    }
+
+    private int clamp(int value) {
+        return Math.clamp(value, 0, STAR_COUNT);
     }
 
     // =========================================================
@@ -313,12 +322,5 @@ public class OrderDisplayView extends BorderPane {
         imageView.setSmooth(true);
 
         return imageView;
-    }
-
-    // =========================================================
-    // CLAMP
-    // =========================================================
-    private int clamp(int value) {
-        return Math.clamp(value, 0, STAR_COUNT);
     }
 }

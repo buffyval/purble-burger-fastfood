@@ -38,7 +38,7 @@ public class MainController {
     }
 
     /*
-    * public void handleDeliverBurger(BurgerView burgerView, Runnable refreshUI) {
+    public void handleDeliverBurger(BurgerView burgerView, Runnable refreshUI) {
         // 1. Invia il panino al GameEngine per calcolare il punteggio
         gameEngine.submitBurger(currentBurger);
 

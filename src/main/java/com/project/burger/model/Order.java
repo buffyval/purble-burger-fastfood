@@ -40,14 +40,57 @@ public class Order {
     }
 
     public boolean matches(Burger burger) {
-        List<IngredientType> burgerIngredients = burger.getIngredients().stream()
+        if (burger == null) return false;
+
+        // 1. Calcoliamo gli ingredienti ESATTI che il display ti ha mostrato
+        List<IngredientType> expectedIngredients = new ArrayList<>();
+
+        // A. Il display disegna al massimo una volta per tipo queste verdure/formaggi
+        List<IngredientType> displayVeggies = List.of(
+                IngredientType.LETTUCE, IngredientType.ONION,
+                IngredientType.TOMATO, IngredientType.PICKLES, IngredientType.CHEESE
+        );
+        for (IngredientType type : displayVeggies) {
+            if (targetIngredients.contains(type)) {
+                expectedIngredients.add(type);
+            }
+        }
+
+        // B. Il display FORZA sempre e comunque una carne a schermo
+        IngredientType expectedMeat = (targetShape == BreadShape.BAGUETTE)
+                ? IngredientType.HAM
+                : (targetIngredients.contains(IngredientType.HAM) ? IngredientType.HAM : IngredientType.PATTY);
+
+        expectedIngredients.add(expectedMeat);
+
+        // 2. Prendiamo la lista degli ingredienti che tu hai effettivamente messo sul vassoio
+        List<IngredientType> actualIngredients = burger.getIngredients().stream()
                 .map(Ingredient::getType)
                 .toList();
 
+        // 3. Ordiniamo ed eguagliamo (l'ordine in cui hai cliccato i pulsanti non importa)
+        List<IngredientType> sortedExpected = expectedIngredients.stream().sorted().toList();
+        List<IngredientType> sortedActual = actualIngredients.stream().sorted().toList();
+
+        boolean sameIngredients = sortedExpected.equals(sortedActual);
+
+        // 4. Verifichiamo il resto dell'ordine
         return Objects.equals(targetShape, burger.getShape())
-                && targetIngredients.equals(burgerIngredients)
+                && sameIngredients
                 && targetFries == burger.isFriesPresent()
-                && Objects.equals(targetSauce, burger.getSauce())
-                && Objects.equals(targetDrink, burger.getDrink());
+                && Objects.equals(targetSauce, burger.getSauce());
+    }
+
+    /**
+     * Helper per verificare se due liste contengono gli stessi identici elementi
+     * (stessi elementi e stesse quantità), ignorando l'ordine degli elementi.
+     */
+    private boolean hasSameIngredients(List<IngredientType> list1, List<IngredientType> list2) {
+        if (list1 == null || list2 == null || list1.size() != list2.size()) {
+            return false;
+        }
+        List<IngredientType> sorted1 = list1.stream().sorted().toList();
+        List<IngredientType> sorted2 = list2.stream().sorted().toList();
+        return sorted1.equals(sorted2);
     }
 }

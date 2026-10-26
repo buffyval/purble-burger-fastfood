@@ -31,7 +31,9 @@ public class StationController {
     }
 
     public void deliverBurger() {
-        gameEngine.submitBurger(burger);
+        if (gameEngine != null && burger != null) {
+            gameEngine.submitBurger(burger);
+        }
         resetBurger();
     }
 

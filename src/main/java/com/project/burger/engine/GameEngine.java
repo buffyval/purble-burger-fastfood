@@ -26,14 +26,16 @@ public class GameEngine {
     }
 
     public void submitBurger(Burger burger) {
-        if (currentOrder != null && currentOrder.matches(burger) && scoreStars < MAX_SCORE_STARS) {
-            scoreStars++;
+        if (currentOrder != null && currentOrder.matches(burger)) {
+            if (scoreStars < MAX_SCORE_STARS) { scoreStars++; }
         }
 
-        if (currentBurgerCount >= MAX_BURGERS) { // MAX_BURGERS = 5
+        currentBurgerCount++;
+
+        if (currentBurgerCount >= MAX_BURGERS) {
+            currentBurgerCount = MAX_BURGERS;
             state = GameState.GAME_OVER;
         } else {
-            currentBurgerCount++;
             currentOrder = orderGenerator.generateRandomOrder();
         }
     }
