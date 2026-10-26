@@ -26,16 +26,21 @@ public class OrderGenerator {
         Collections.shuffle(ingredients, random);
         ingredients = new ArrayList<>(ingredients.subList(0, random.nextInt(1, 5)));
 
+        // conditions for bun type and ingredients generation
         if (shape == BreadShape.BAGUETTE) {
-
+            boolean hadPatty = false;
             for (int i = 0; i < ingredients.size(); i++) {
                 if (ingredients.get(i) == IngredientType.PATTY) {
                     ingredients.set(i, IngredientType.HAM);
+                    hadPatty = true;
+                }
+                if (!ingredients.contains(IngredientType.HAM) && !hadPatty) {
+                    // Garantisce che in caso di presenza di carne sia solo HAM
+                    ingredients.remove(IngredientType.PATTY);
                 }
             }
 
         } else if (shape == BreadShape.BAGEL) {
-
             if (random.nextBoolean()) {
                 for (int i = 0; i < ingredients.size(); i++) {
                     if (ingredients.get(i) == IngredientType.PATTY) {

@@ -157,7 +157,9 @@ public class OrderDisplayView extends BorderPane {
         // =====================================================
         // PATTY or HAM
         // =====================================================
-        IngredientType meatIngredient = Optional.ofNullable(order)
+        IngredientType meatIngredient = isBaguette
+                ? IngredientType.HAM
+                : Optional.ofNullable(order)
                 .map(Order::getTargetIngredients)
                 .filter(ingredients -> ingredients.contains(IngredientType.HAM))
                 .map(ingredients -> IngredientType.HAM)

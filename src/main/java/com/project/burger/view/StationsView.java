@@ -30,10 +30,10 @@ public class StationsView extends HBox {
         setAlignment(Pos.CENTER);
         setSpacing(10);
 
-        // 1. Shape (Classic, Baguette, Bagel) -> Stazione 0
+        // 1. Shape (Classic, Baguette, Bagel)
         getChildren().add(createStation("Shape", createShapeButtons(stationController)));
 
-        // 2. Meat (Carne & Prosciutto) -> Stazione 1
+        // 2. Meat (Carne & Prosciutto)
         Button pattyButton = createImageButton("/assets/ingredient_patty.png", 35);
         pattyButton.setOnAction(event -> {
             if (getCurrentStation() == 1) {

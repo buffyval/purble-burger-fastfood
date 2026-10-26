@@ -20,33 +20,7 @@ public class StationController {
         burger.setShape(shape);
     }
 
-    /* inutile
-    public void addMeat() {
-        if (burger.getShape() == BreadShape.BAGUETTE) {
-            // La baguette prende sempre il prosciutto
-            addIngredient(IngredientType.HAM);
-        } else if (burger.getShape() == BreadShape.CLASSIC) {
-            // Il classic prende sempre la carne
-            addIngredient(IngredientType.PATTY);
-        } else if (burger.getShape() == BreadShape.BAGEL) {
-            // Il bagel prende quello che l'ordine richiede
-            Order currentOrder = gameEngine.getCurrentOrder();
-            if (currentOrder != null && currentOrder.getTargetIngredients().contains(IngredientType.HAM)) {
-                addIngredient(IngredientType.HAM);
-            } else {
-                addIngredient(IngredientType.PATTY);
-            }
-        }
-    }
-    */
-
-    public void addAddition(IngredientType ingredientType) {
-        if (burger.getShape() == BreadShape.BAGUETTE && ingredientType == IngredientType.PATTY) {
-            addIngredient(IngredientType.HAM);
-        } else {
-            addIngredient(ingredientType);
-        }
-    }
+    public void addAddition(IngredientType ingredientType) { addIngredient(ingredientType); }
 
     public void addFries() {
         burger.setFriesPresent(true);
