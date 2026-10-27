@@ -27,7 +27,7 @@ public class StationController {
     }
 
     public void applySauce(IngredientType sauceType) {
-        burger.setSauce(sauceType);
+        burger.addSauce(sauceType);
     }
 
     public void deliverBurger() {

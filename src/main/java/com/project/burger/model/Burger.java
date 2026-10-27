@@ -6,8 +6,8 @@ import java.util.List;
 public class Burger {
     private BreadShape shape;
     private final List<Ingredient> ingredients = new ArrayList<>();
+    private final List<IngredientType> sauces = new ArrayList<>();
     private boolean friesPresent;
-    private IngredientType sauce;
     private DrinkType drink;
 
     public Burger() {
@@ -17,6 +17,14 @@ public class Burger {
         ingredients.add(ingredient);
     }
 
+    public void addSauce(IngredientType sauce) {
+        if (sauce != null && !sauces.contains(sauce)) {
+            sauces.add(sauce);
+        }
+    }
+
+    public List<IngredientType> getSauces() { return sauces; }
+
     public void setShape(BreadShape shape) {
         this.shape = shape;
     }
@@ -25,15 +33,11 @@ public class Burger {
         this.friesPresent = friesPresent;
     }
 
-    public void setSauce(IngredientType sauce) {
-        this.sauce = sauce;
-    }
-
     public void clear() {
         shape = null;
         ingredients.clear();
         friesPresent = false;
-        sauce = null;
+        sauces.clear();
         drink = null;
     }
 
@@ -47,10 +51,6 @@ public class Burger {
 
     public boolean isFriesPresent() {
         return friesPresent;
-    }
-
-    public IngredientType getSauce() {
-        return sauce;
     }
 
     public void setDrink(DrinkType drink) {

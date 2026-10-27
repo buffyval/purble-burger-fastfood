@@ -51,12 +51,20 @@ public class OrderGenerator {
         }
 
         boolean fries = random.nextBoolean();
-        IngredientType sauce = (fries && random.nextBoolean())
-                ? Arrays.stream(IngredientType.values())
-                .filter(type -> "SAUCE".equals(type.getCategory()))
-                .toList()
-                .get(random.nextInt(2))
-                : null;
+        IngredientType sauce = null;
+        if (fries) {
+            boolean wantsSauce = random.nextBoolean();
+
+            if (wantsSauce) {
+                // Extracts casually between ketchup (0) and mustard (1)
+                int randomSauceIndex = random.nextInt(2);
+                if (randomSauceIndex == 0) {
+                    sauce = IngredientType.KETCHUP;
+                } else {
+                    sauce = IngredientType.MUSTARD;
+                }
+            }
+        }
 
         DrinkType drink = random.nextBoolean()
                 ? randomEnum(DrinkType.values(), random)

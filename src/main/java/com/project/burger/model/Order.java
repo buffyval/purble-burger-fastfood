@@ -68,17 +68,24 @@ public class Order {
                 .map(Ingredient::getType)
                 .toList();
 
-        // 3. Ordiniamo ed eguagliamo (l'ordine in cui hai cliccato i pulsanti non importa)
+        // 3. Ordiniamo ed eguagliamo
         List<IngredientType> sortedExpected = expectedIngredients.stream().sorted().toList();
         List<IngredientType> sortedActual = actualIngredients.stream().sorted().toList();
 
         boolean sameIngredients = sortedExpected.equals(sortedActual);
 
-        // 4. Verifichiamo il resto dell'ordine
+        // 4. Controllo flessibile della salsa:
+        // Se l'ordine non richiede salse, il vassoio deve non averne.
+        // Se l'ordine richiede una salsa, verifichiamo che sia tra quelle aggiunte dall'utente.
+        boolean sauceMatches = (targetSauce == null)
+                ? burger.getSauces().isEmpty()
+                : burger.getSauces().contains(targetSauce);
+
+        // 5. Restituzione esito
         return Objects.equals(targetShape, burger.getShape())
                 && sameIngredients
                 && targetFries == burger.isFriesPresent()
-                && Objects.equals(targetSauce, burger.getSauce());
+                && sauceMatches;
     }
 
     /**

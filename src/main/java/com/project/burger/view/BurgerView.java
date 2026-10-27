@@ -266,28 +266,45 @@ public class BurgerView extends StackPane {
             layers.add(ingredientNode);
         }
 
-        // 3. SALSA OPZIONALE
-        if (burger.getSauce() != null) {
-            Node sauceNode = createIngredientNode(ingredientImagePath(burger.getSauce()), isBaguette);
-            sauceNode.setUserData(burger.getSauce());
-            layers.add(sauceNode);
-        }
-
         // 4. PANE INFERIORE (Bottom Bun)
         ImageView bottomBun = createImageView(
                 "/assets/bun_" + shape.name().toLowerCase() + "_bottom.png", bunWidth, INGREDIENT_HEIGHT);
         bottomBun.setUserData(null);
         layers.add(bottomBun);
 
-        // 5. PATATINE OPZIONALI
-        if (burger.isFriesPresent()) {
-            ImageView friesView = createImageView("/assets/fries.png", STANDARD_WIDTH, 45);
-            friesView.setUserData(null);
-            layers.add(friesView);
-        }
-
         // Applicazione del posizionamento sovrapposto su StackPane
         layoutLayers(layers, isBaguette);
+
+        // -------------------------------------------------
+        // OUTSIDE OF STACKPANE
+        // -------------------------------------------------
+
+        // 5. PATATINE OPZIONALI
+        if (burger.isFriesPresent()) {
+            ImageView friesView = createImageView("/assets/fries.png", STANDARD_WIDTH, 70);
+            friesView.setUserData(null);
+            friesView.setTranslateX(50);
+            friesView.setTranslateY(-87);
+            friesView.setViewOrder(100); // fries behind the sandwich
+            burgerLayers.getChildren().add(friesView);
+        }
+
+        // 3. SALSE OPZIONALE
+        for (IngredientType sauceType : burger.getSauces()) {
+            ImageView sauceNode = createImageView(ingredientImagePath(sauceType), 40, 40);
+            sauceNode.setUserData(sauceType);
+
+            // POSIZIONAMENTO DISTINTO PER OGNI SALSA SUL VASSOIO
+            if (sauceType == IngredientType.KETCHUP) {
+                sauceNode.setTranslateX(-60); // diminuisci per spostare a sinistra
+                sauceNode.setTranslateY(-70); // diminuisci per spostare in alto
+            } else if (sauceType == IngredientType.MUSTARD) {
+                sauceNode.setTranslateX(-30);
+                sauceNode.setTranslateY(-70);
+            }
+
+            burgerLayers.getChildren().add(sauceNode);
+        }
     }
 
     @SuppressWarnings("DuplicatedCode")
@@ -341,10 +358,20 @@ public class BurgerView extends StackPane {
     }
 
     private String ingredientImagePath(IngredientType ingredient) {
-        if (ingredient == IngredientType.HAM) {
-            return "/assets/ingredient_ham.png";
+        if (ingredient == null) {
+            return "";
         }
-        return "/assets/ingredient_" + ingredient.name().toLowerCase() + ".png";
+
+        switch (ingredient) {
+            case KETCHUP:
+                return "/assets/sauce_ketchup.png";
+            case MUSTARD:
+                return "/assets/sauce_mustard.png";
+            case HAM:
+                return "/assets/ingredient_ham.png";
+            default:
+                return "/assets/ingredient_" + ingredient.name().toLowerCase() + ".png";
+        }
     }
 
     private ImageView createImageView(String resourcePath, double fitWidth, double fitHeight) {
