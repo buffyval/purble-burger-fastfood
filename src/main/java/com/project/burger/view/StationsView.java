@@ -93,13 +93,12 @@ public class StationsView extends HBox {
         friesAndSaucesGroup.setAlignment(Pos.CENTER);
         getChildren().add(createStation("Fries & Sauces", friesAndSaucesGroup));
 
-        // 6. Deliver, Trash, Submit drink
+        // 6. Deliver and Trash
         VBox actionButtonsGroup = getActionButtonsGroup(stationController);
         getChildren().add(createStation("Actions", actionButtonsGroup));
     }
     
     private VBox getActionButtonsGroup(StationController stationController) {
-        // In StationsView.java -> dentro getActionButtonsGroup
 
         Button deliverButton = new Button("Deliver");
         deliverButton.setStyle("-fx-font-weight: bold; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-cursor: hand;");

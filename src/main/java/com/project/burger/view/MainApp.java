@@ -31,6 +31,23 @@ public class MainApp extends Application {
                     controller.getGameEngine().getCurrentOrder(),
                     controller.getGameEngine().getCurrentBurgerCount(),
                     controller.getGameEngine().getScoreStars());
+
+            // Intercetta la fine della partita in modo sicuro
+            if (controller.getGameEngine().getState() == com.project.burger.engine.GameState.GAME_OVER) {
+
+                GameDialog.show(primaryStage, controller.getGameEngine().getScoreStars(), () -> {
+
+                    // "Play Again": resetta motore di gioco, panino e nastro trasportatore
+                    controller.handleStartGame();
+
+                    // Forza l'aggiornamento visivo immediato della nuova partita
+                    burgerView.renderBurger(controller.getCurrentBurger());
+                    orderDisplayView.renderOrder(
+                            controller.getGameEngine().getCurrentOrder(),
+                            controller.getGameEngine().getCurrentBurgerCount(),
+                            controller.getGameEngine().getScoreStars());
+                });
+            }
         };
 
         StationsView stationsView = new StationsView(controller.getStationController(), controller.getConveyorController(), refresh);
@@ -75,8 +92,8 @@ public class MainApp extends Application {
 
         StackPane root = new StackPane(gameLayout);
 
-        // 1. SFONDO START FISSO (kitchen_background.png - dimensione fissa 1000x700 non flessibile)
-        setFixedAppBackground(root, "/assets/kitchen_background.png");
+        // 1. SFONDO START FISSO (background_kitchen.png - dimensione fissa 1000x700 non flessibile)
+        setFixedAppBackground(root, "/assets/background_kitchen.png");
 
         // 2. AZIONE AL CLICK SU START GAME
         startButton.setOnAction(event -> {
