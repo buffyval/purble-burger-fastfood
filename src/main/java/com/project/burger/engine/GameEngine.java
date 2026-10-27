@@ -30,12 +30,11 @@ public class GameEngine {
             if (scoreStars < MAX_SCORE_STARS) { scoreStars++; }
         }
 
-        currentBurgerCount++;
-
         if (currentBurgerCount >= MAX_BURGERS) {
-            currentBurgerCount = MAX_BURGERS;
+            currentBurgerCount = MAX_BURGERS; // da togliere?
             state = GameState.GAME_OVER;
         } else {
+            currentBurgerCount++;
             currentOrder = orderGenerator.generateRandomOrder();
         }
     }
