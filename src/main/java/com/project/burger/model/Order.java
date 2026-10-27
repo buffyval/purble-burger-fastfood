@@ -42,10 +42,10 @@ public class Order {
     public boolean matches(Burger burger) {
         if (burger == null) return false;
 
-        // 1. Calcoliamo gli ingredienti ESATTI che il display ti ha mostrato
+        // 1. Calcoliamo gli ingredienti ESATTI che il display ti ha mostrato (dall'alto verso il basso)
         List<IngredientType> expectedIngredients = new ArrayList<>();
 
-        // A. Il display disegna al massimo una volta per tipo queste verdure/formaggi
+        // A. Verdure/Formaggi nel display
         List<IngredientType> displayVeggies = List.of(
                 IngredientType.LETTUCE, IngredientType.ONION,
                 IngredientType.TOMATO, IngredientType.PICKLES, IngredientType.CHEESE
@@ -56,32 +56,30 @@ public class Order {
             }
         }
 
-        // B. Il display FORZA sempre e comunque una carne a schermo
+        // B. Carne nel display (in coda alla lista visiva)
         IngredientType expectedMeat = (targetShape == BreadShape.BAGUETTE)
                 ? IngredientType.HAM
                 : (targetIngredients.contains(IngredientType.HAM) ? IngredientType.HAM : IngredientType.PATTY);
 
         expectedIngredients.add(expectedMeat);
 
-        // 2. Prendiamo la lista degli ingredienti che tu hai effettivamente messo sul vassoio
+        // 2. Invertiamo la lista del display per ottenere l'ESATTO ordine dal basso verso l'alto (come viene assemblato sul vassoio)
+        List<IngredientType> expectedBottomToTop = expectedIngredients.reversed();
+
+        // 3. Prendiamo gli ingredienti che l'utente ha messo sul vassoio (dal basso verso l'alto)
         List<IngredientType> actualIngredients = burger.getIngredients().stream()
                 .map(Ingredient::getType)
                 .toList();
 
-        // 3. Ordiniamo ed eguagliamo
-        List<IngredientType> sortedExpected = expectedIngredients.stream().sorted().toList();
-        List<IngredientType> sortedActual = actualIngredients.stream().sorted().toList();
+        // 4. CONFRONTO ESATTO DELLA SEQUENZA VERTICALE
+        boolean sameIngredients = expectedBottomToTop.equals(actualIngredients);
 
-        boolean sameIngredients = sortedExpected.equals(sortedActual);
-
-        // 4. Controllo flessibile della salsa:
-        // Se l'ordine non richiede salse, il vassoio deve non averne.
-        // Se l'ordine richiede una salsa, verifichiamo che sia tra quelle aggiunte dall'utente.
+        // 5. Controllo flessibile delle salse e delle patatine
         boolean sauceMatches = (targetSauce == null)
                 ? burger.getSauces().isEmpty()
                 : burger.getSauces().contains(targetSauce);
 
-        // 5. Restituzione esito
+        // 6. Restituzione esito
         return Objects.equals(targetShape, burger.getShape())
                 && sameIngredients
                 && targetFries == burger.isFriesPresent()

@@ -115,14 +115,7 @@ public class StationsView extends HBox {
             triggerRefresh();
         });
 
-        Button submitDrinkButton = new Button("Submit drink");
-        submitDrinkButton.setStyle("-fx-font-weight: bold; -fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand;");
-        submitDrinkButton.setOnAction(event -> {
-            stationController.dispenseDrink();
-            triggerRefresh();
-        });
-
-        VBox actionButtonsGroup = new VBox(6, deliverButton, trashButton, submitDrinkButton);
+        VBox actionButtonsGroup = new VBox(6, deliverButton, trashButton);
         actionButtonsGroup.setAlignment(Pos.CENTER);
         return actionButtonsGroup;
     }

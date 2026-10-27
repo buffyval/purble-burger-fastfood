@@ -5,7 +5,6 @@ import com.project.burger.model.BreadShape;
 import com.project.burger.model.Burger;
 import com.project.burger.model.Ingredient;
 import com.project.burger.model.IngredientType;
-import com.project.burger.model.DrinkType;
 
 public class StationController {
     private final Burger burger;
@@ -35,13 +34,6 @@ public class StationController {
             gameEngine.submitBurger(burger);
         }
         resetBurger();
-    }
-
-    public void dispenseDrink() {
-        DrinkType targetDrink = gameEngine.getCurrentOrder().getTargetDrink();
-        if (targetDrink != null) {
-            burger.setDrink(targetDrink);
-        }
     }
 
     private void addIngredient(IngredientType ingredientType) {

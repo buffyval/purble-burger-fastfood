@@ -20,7 +20,6 @@ public class MainController {
     public void moveConveyorNext() {
         conveyorController.moveToNextStation();
         if (conveyorController.getCurrentStationIndex() == 6 && !orderCompletedAtDrinks) {
-            stationController.dispenseDrink();
             stationController.deliverBurger();
             orderCompletedAtDrinks = true;
         }

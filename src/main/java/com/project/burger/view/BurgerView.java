@@ -240,11 +240,11 @@ public class BurgerView extends StackPane {
 
     public void renderBurger(Burger burger) {
         burgerLayers.getChildren().clear();
-        if (burger == null) {
+        if (burger == null || burger.getShape() == null) {
             return;
         }
 
-        BreadShape shape = burger.getShape() == null ? BreadShape.CLASSIC : burger.getShape();
+        BreadShape shape = burger.getShape();
         boolean isBaguette = (shape == BreadShape.BAGUETTE);
         double bunWidth = isBaguette ? BAGUETTE_WIDTH : STANDARD_WIDTH;
 
