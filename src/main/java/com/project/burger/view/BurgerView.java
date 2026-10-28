@@ -31,7 +31,7 @@ public class BurgerView extends StackPane {
     private static final double BELT_HEIGHT = 50;
     private static final double TRAY_WIDTH = 130;
     private static final double TRAY_HEIGHT = 30;
-    private static final int STATION_COUNT = 6;
+    private static final int STATION_COUNT = 5;
     private static final double[] DEFAULT_STATION_X = {70, 200, 400, 580, 750, 690};
 
     private final Group beltLines = new Group();
@@ -208,7 +208,7 @@ public class BurgerView extends StackPane {
 
     public void moveConveyorTo(int stationIndex) {
         if (stationIndex < 0 || stationIndex >= STATION_COUNT) {
-            throw new IllegalArgumentException("Station index must be between 0 and 5");
+            throw new IllegalArgumentException("Station index must be between 0 and 4");
         }
         moveConveyorTo(stationIndex, stationIndex > currentStation);
     }
@@ -362,16 +362,12 @@ public class BurgerView extends StackPane {
             return "";
         }
 
-        switch (ingredient) {
-            case KETCHUP:
-                return "/assets/sauce_ketchup.png";
-            case MUSTARD:
-                return "/assets/sauce_mustard.png";
-            case HAM:
-                return "/assets/ingredient_ham.png";
-            default:
-                return "/assets/ingredient_" + ingredient.name().toLowerCase() + ".png";
-        }
+        return switch (ingredient) {
+            case KETCHUP -> "/assets/sauce_ketchup.png";
+            case MUSTARD -> "/assets/sauce_mustard.png";
+            case HAM -> "/assets/ingredient_ham.png";
+            default -> "/assets/ingredient_" + ingredient.name().toLowerCase() + ".png";
+        };
     }
 
     private ImageView createImageView(String resourcePath, double fitWidth, double fitHeight) {
