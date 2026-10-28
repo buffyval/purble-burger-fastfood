@@ -4,7 +4,7 @@ public class ConveyorController {
     private int currentStationIndex;
 
     public void moveToNextStation() {
-        if (currentStationIndex < 5) {
+        if (currentStationIndex < 4) {
             currentStationIndex++;
         }
     }
