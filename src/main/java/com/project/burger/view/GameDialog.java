@@ -21,20 +21,25 @@ public class GameDialog {
         dialogStage.initOwner(ownerStage);
         dialogStage.initStyle(StageStyle.TRANSPARENT);
 
-        // Titolo "WELL DONE!"
-        Label titleLabel = new Label("WELL DONE!");
-        titleLabel.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #2E7D32;");
+        boolean isVictory = finalScoreStars >= 4;
+        Label titleLabel = new Label(isVictory ? "WELL DONE!" : "YOU SUCK.");
+        String titleColor = isVictory ? "#2E7D32" : "#D32F2F";
+        titleLabel.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: " + titleColor + ";");
 
-        // Immagini dello Chef e del Sacchetto da Consegna
-        ImageView chefImageView = createImageView("/assets/chef.png", 400, 300);
-        ImageView packageImageView = createImageView("/assets/package.png", 300, 200);
-        packageImageView.setTranslateX(-90);
-        packageImageView.setTranslateY(-20);
+        String chefImage = isVictory ? "/assets/chef.png" : "/assets/chef_sad.png";
+        ImageView chefImageView = createImageView(chefImage, 400, 300);
 
-        HBox imagesBox = new HBox(15, chefImageView, packageImageView);
+        HBox imagesBox = new HBox(15);
         imagesBox.setAlignment(Pos.CENTER);
+        imagesBox.getChildren().add(chefImageView);
 
-        // Visualizzazione delle Stelle sotto al titolo/immagini
+        if (isVictory) {
+            ImageView packageImageView = createImageView("/assets/package.png", 300, 200);
+            packageImageView.setTranslateX(-90);
+            packageImageView.setTranslateY(-20);
+            imagesBox.getChildren().add(packageImageView);
+        }
+
         HBox starsBox = new HBox(6);
         starsBox.setAlignment(Pos.CENTER);
         for (int i = 0; i < 5; i++) {
@@ -45,10 +50,10 @@ public class GameDialog {
             starsBox.getChildren().add(star);
         }
 
-        // Pulsante di Riavvio in basso al centro
-        Button restartButton = new Button("Play Again");
+        Button restartButton = new Button(isVictory ? "Play Again" : "Try Again");
+        String buttonColor = isVictory ? "#4CAF50" : "#D32F2F";
         restartButton.setPrefSize(180, 45);
-        restartButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-background-color: #4CAF50; " +
+        restartButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-background-color: " + buttonColor + "; " +
                 "-fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 10;");
 
         restartButton.setOnAction(event -> {
