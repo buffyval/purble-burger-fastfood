@@ -2,6 +2,7 @@ package com.project.burger.view;
 
 import com.project.burger.controller.MainController;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -10,6 +11,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 
 import java.net.URL;
 
@@ -25,6 +29,15 @@ public class MainApp extends Application {
         BurgerView burgerView = new BurgerView();
         ChefView chefView = new ChefView();
 
+        Label timerLabel = new Label("Time left: 01:00");
+        timerLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #D32F2F; " +
+                "-fx-background-color: rgba(255, 255, 255, 0.9); -fx-padding: 8 15; -fx-background-radius: 8;");
+        timerLabel.setLayoutX(20);
+        timerLabel.setLayoutY(20);
+
+        final int[] timeSeconds = {60};
+        final Timeline[] timeline = new Timeline[1];
+
         Runnable refresh = () -> {
             burgerView.renderBurger(controller.getCurrentBurger());
             orderDisplayView.renderOrder(
@@ -34,13 +47,16 @@ public class MainApp extends Application {
 
             // Intercetta la fine della partita in modo sicuro
             if (controller.getGameEngine().getState() == com.project.burger.engine.GameState.GAME_OVER) {
+                if (timeline[0] != null) timeline[0].stop(); // FERMA IL TIMER ALLA VITTORIA
 
-                GameDialog.show(primaryStage, controller.getGameEngine().getScoreStars(), () -> {
-
-                    // "Play Again": resetta motore di gioco, panino e nastro trasportatore
+                GameDialogView.show(primaryStage, controller.getGameEngine().getScoreStars(), () -> {
                     controller.handleStartGame();
 
-                    // Forza l'aggiornamento visivo immediato della nuova partita
+                    // RESETTA E RIAVVIA IL TIMER
+                    timeSeconds[0] = 60;
+                    timerLabel.setText("Time left: 01:00");
+                    if (timeline[0] != null) timeline[0].playFromStart();
+
                     burgerView.renderBurger(controller.getCurrentBurger());
                     orderDisplayView.renderOrder(
                             controller.getGameEngine().getCurrentOrder(),
@@ -180,7 +196,32 @@ public class MainApp extends Application {
             // burgerView.animateConveyor(true);
 
             // Aggiungo i controlli al gamePane (burgerView inserito PRIMA di stationsWithArrows)
-            gamePane.getChildren().addAll(orderDisplayView, dispensersBox, chefView, burgerView, stationsWithArrows);
+            // ----- TIMER E TIMEOUT -----
+            if (timeline[0] != null) timeline[0].stop(); // Evita timer doppi
+
+            timeline[0] = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+                timeSeconds[0]--;
+                timerLabel.setText(String.format("Time left: %02d:%02d", timeSeconds[0] / 60, timeSeconds[0] % 60));
+
+                if (timeSeconds[0] <= 0) {
+                    timeline[0].stop();
+                    Platform.runLater(() -> {
+                        int currentStars = controller.getGameEngine().getScoreStars();
+                        GameDialogView.show(primaryStage, currentStars, () -> {
+                            controller.handleStartGame();
+                            timeSeconds[0] = 60;
+                            timerLabel.setText("Time left: 01:00");
+                            refresh.run();
+                            timeline[0].playFromStart();
+                        });
+                    });
+                }
+            }));
+            timeline[0].setCycleCount(Timeline.INDEFINITE);
+            timeline[0].play();
+
+            // Aggiungo i controlli e la timerLabel al gamePane
+            gamePane.getChildren().addAll(timerLabel, orderDisplayView, dispensersBox, chefView, burgerView, stationsWithArrows);
             stationsWithArrows.toFront();
 
             // Inserisco il gamePane al centro della finestra

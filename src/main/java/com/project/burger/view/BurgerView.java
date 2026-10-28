@@ -206,6 +206,7 @@ public class BurgerView extends StackPane {
         beltTransition.play();
     }
 
+    // requirements manager
     public void moveConveyorTo(int stationIndex) {
         if (stationIndex < 0 || stationIndex >= STATION_COUNT) {
             throw new IllegalArgumentException("Station index must be between 0 and 4");
@@ -213,6 +214,7 @@ public class BurgerView extends StackPane {
         moveConveyorTo(stationIndex, stationIndex > currentStation);
     }
 
+    // animation and movement manager
     private void moveConveyorTo(int stationIndex, boolean forward) {
         if (stationIndex == currentStation) {
             return;

@@ -14,7 +14,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import java.net.URL;
 
-public class GameDialog {
+public class GameDialogView {
     public static void show(Stage ownerStage, int finalScoreStars, Runnable onRestartCallback) {
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.APPLICATION_MODAL);
@@ -78,9 +78,9 @@ public class GameDialog {
 
     private static ImageView createImageView(String resourcePath, double width, double height) {
         ImageView imageView = new ImageView();
-        URL url = GameDialog.class.getResource(resourcePath);
+        URL url = GameDialogView.class.getResource(resourcePath);
         if (url == null && resourcePath.contains("/assets/")) {
-            url = GameDialog.class.getResource(resourcePath.replace("/assets/", "/images/"));
+            url = GameDialogView.class.getResource(resourcePath.replace("/assets/", "/images/"));
         }
         if (url != null) {
             imageView.setImage(new Image(url.toExternalForm()));
