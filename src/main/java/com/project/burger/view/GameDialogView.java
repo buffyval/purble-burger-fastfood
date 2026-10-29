@@ -22,7 +22,7 @@ public class GameDialogView {
         dialogStage.initStyle(StageStyle.TRANSPARENT);
 
         boolean isVictory = finalScoreStars >= 4;
-        Label titleLabel = new Label(isVictory ? "WELL DONE!" : "YOU SUCK.");
+        Label titleLabel = new Label(isVictory ? "WELL DONE!" : "GAME OVER");
         String titleColor = isVictory ? "#2E7D32" : "#D32F2F";
         titleLabel.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: " + titleColor + ";");
 

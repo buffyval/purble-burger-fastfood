@@ -49,21 +49,6 @@ public class OrderDisplayView extends BorderPane {
         setPadding(new Insets(20, 0, 0, 25));
 
         // =====================================================
-        // STELLE
-        // =====================================================
-        HBox starsBox = new HBox(3);
-        starsBox.setAlignment(Pos.TOP_LEFT); // Allineate a sinistra
-        starsBox.setStyle("-fx-padding: 0 0 8 0;");
-
-        IntStream.range(0, STAR_COUNT).forEach(i -> {
-            stars[i] = new Label("☆"); // Stelle inizialmente vuote
-            stars[i].setStyle("-fx-font-size: 24px;");
-            stars[i].setTextFill(Color.web("#d6b36a"));
-            starsBox.getChildren().add(stars[i]);
-        });
-        starsBox.setVisible(true);
-
-        // =====================================================
         // DISPLAY SCHEDA ORDINE
         // =====================================================
         orderBox.setAlignment(Pos.CENTER);
@@ -88,11 +73,29 @@ public class OrderDisplayView extends BorderPane {
         orderNumberLabel.setTranslateX(15);
         orderNumberLabel.setTranslateY(12);
 
+        // =====================================================
+        // STELLE
+        // =====================================================
+        HBox starsBox = new HBox(3);
+        starsBox.setAlignment(Pos.CENTER);
+        starsBox.setStyle("-fx-padding: 0;");
+
+        IntStream.range(0, STAR_COUNT).forEach(i -> {
+            stars[i] = new Label("☆");
+            stars[i].setStyle("-fx-font-size: 32px;");
+            stars[i].setTextFill(Color.web("#d6b36a"));
+            starsBox.getChildren().add(stars[i]);
+        });
+
+        StackPane.setAlignment(starsBox, Pos.TOP_CENTER);
+        starsBox.setTranslateY(100);
+        starsBox.setViewOrder(-10);
+
         URL displayBgUrl = getClass().getResource("/assets/order_display_frame.png");
 
         if (displayBgUrl != null) {
             ImageView frameView = createImageView("/assets/order_display_frame.png", DISPLAY_WIDTH, DISPLAY_HEIGHT);
-            displayContainer.getChildren().addAll(frameView, orderBox);
+            displayContainer.getChildren().addAll(frameView, orderBox, starsBox);
         } else {
             orderBox.setStyle(
                     "-fx-background-color: rgba(255, 248, 231, 0.95);" +
@@ -101,12 +104,12 @@ public class OrderDisplayView extends BorderPane {
                             "-fx-border-radius: 12;" +
                             "-fx-background-radius: 12;"
             );
-            displayContainer.getChildren().add(orderBox);
+            displayContainer.getChildren().addAll(orderBox, starsBox);
         }
 
-        // Raggruppa le stelle (sopra) e la scheda dell'ordine (sotto) a SINISTRA
-        VBox leftContainer = new VBox(5, starsBox, displayContainer);
-        setLeft(leftContainer);
+        setLeft(displayContainer);
+        renderStars(0);
+        starsBox.setVisible(true);
     }
 
     // =========================================================

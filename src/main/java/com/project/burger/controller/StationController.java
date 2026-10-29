@@ -41,4 +41,11 @@ public class StationController {
     }
 
     public void resetBurger() { this.burger.clear(); }
+
+    public void restartGame() {
+        if (gameEngine != null) {
+            gameEngine.startGame();
+        }
+        resetBurger();
+    }
 }

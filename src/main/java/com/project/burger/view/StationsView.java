@@ -28,13 +28,13 @@ public class StationsView extends HBox {
         this.conveyorController = conveyorController;
 
         setAlignment(Pos.CENTER);
-        setSpacing(10);
+        setSpacing(12); // increase for more spacing
 
         // 1. Shape (Classic, Baguette, Bagel)
-        getChildren().add(createStation("Shape", createShapeButtons(stationController)));
+        getChildren().add(createStation("Buns", createShapeButtons(stationController)));
 
         // 2. Meat (Carne & Prosciutto)
-        Button pattyButton = createImageButton("/assets/ingredient_patty.png", 35);
+        Button pattyButton = createImageButton("/assets/ingredient_patty.png");
         pattyButton.setOnAction(event -> {
             if (getCurrentStation() == 1) {
                 stationController.addAddition(IngredientType.PATTY);
@@ -42,7 +42,7 @@ public class StationsView extends HBox {
             }
         });
 
-        Button hamButton = createImageButton("/assets/ingredient_ham.png", 35);
+        Button hamButton = createImageButton("/assets/ingredient_ham.png");
         hamButton.setOnAction(event -> {
             if (getCurrentStation() == 1) {
                 stationController.addAddition(IngredientType.HAM);
@@ -56,13 +56,13 @@ public class StationsView extends HBox {
         getChildren().add(createStation("Meat", meatGroup));
 
         // 3. Additions 1 (Verdure: Lattuga, Cipolla, Pomodoro) -> Stazione 2
-        getChildren().add(createStation("Additions", createVeggieButtons(stationController)));
+        getChildren().add(createStation("Veggies", createVeggieButtons(stationController)));
 
         // 4. Additions 2 (Pickles / Cheese) -> Stazione 3
         getChildren().add(createStation("Additions", createCheesePicklesButtons(stationController)));
 
         // 5. Fries & Sauces -> Stazione 4
-        Button friesButton = createImageButton("/assets/fries.png", 35);
+        Button friesButton = createImageButton("/assets/fries.png");
         friesButton.setOnAction(event -> {
             if (getCurrentStation() == 4) {
                 stationController.addFries();
@@ -70,7 +70,7 @@ public class StationsView extends HBox {
             }
         });
 
-        Button ketchupButton = createImageButton("/assets/sauce_ketchup.png", 35);
+        Button ketchupButton = createImageButton("/assets/sauce_ketchup.png");
         ketchupButton.setOnAction(event -> {
             if (getCurrentStation() == 4) {
                 stationController.applySauce(IngredientType.KETCHUP);
@@ -78,7 +78,7 @@ public class StationsView extends HBox {
             }
         });
 
-        Button mustardButton = createImageButton("/assets/sauce_mustard.png", 35);
+        Button mustardButton = createImageButton("/assets/sauce_mustard.png");
         mustardButton.setOnAction(event -> {
             if (getCurrentStation() == 4) { // Corretto sintassi con 'if'
                 stationController.applySauce(IngredientType.MUSTARD);
@@ -86,35 +86,44 @@ public class StationsView extends HBox {
             }
         });
 
-        HBox saucesGroup = new HBox(5, ketchupButton, mustardButton);
+        VBox saucesGroup = new VBox(5, ketchupButton, mustardButton);
         saucesGroup.setAlignment(Pos.CENTER);
 
         VBox friesAndSaucesGroup = new VBox(8, friesButton, saucesGroup);
         friesAndSaucesGroup.setAlignment(Pos.CENTER);
-        getChildren().add(createStation("Fries & Sauces", friesAndSaucesGroup));
+        getChildren().add(createStation("Fries & Dips", friesAndSaucesGroup));
 
         // 6. Deliver and Trash
         VBox actionButtonsGroup = getActionButtonsGroup(stationController);
+        actionButtonsGroup.setStyle("-fx-background-color: rgba(255, 255, 255, 0.85); -fx-padding: 14 18; -fx-background-radius: 8;");
         getChildren().add(createStation("Actions", actionButtonsGroup));
     }
     
     private VBox getActionButtonsGroup(StationController stationController) {
 
         Button deliverButton = new Button("Deliver");
-        deliverButton.setStyle("-fx-font-weight: bold; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-cursor: hand;");
+        deliverButton.setStyle("-fx-font-weight: bold; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 8 16; -fx-background-radius: 6;");
         deliverButton.setOnAction(event -> {
             stationController.deliverBurger();
             triggerRefresh();
         });
 
         Button trashButton = new Button("Trash");
-        trashButton.setStyle("-fx-font-weight: bold; -fx-background-color: #f44336; -fx-text-fill: white; -fx-cursor: hand;");
+        trashButton.setStyle("-fx-font-weight: bold; -fx-background-color: #f44336; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 8 16; -fx-background-radius: 6;");
         trashButton.setOnAction(event -> {
             stationController.resetBurger();
             triggerRefresh();
         });
 
-        VBox actionButtonsGroup = new VBox(6, deliverButton, trashButton);
+        Button restartButton = new Button("Restart");
+        restartButton.setStyle("-fx-font-weight: bold; -fx-background-color: #FFC107; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 8 16; -fx-background-radius: 6;");
+        restartButton.setOnAction(event -> {
+            stationController.restartGame();
+            conveyorController.reset();
+            triggerRefresh();
+        });
+
+        VBox actionButtonsGroup = new VBox(6, deliverButton, trashButton, restartButton);
         actionButtonsGroup.setAlignment(Pos.CENTER);
         return actionButtonsGroup;
     }
@@ -132,7 +141,7 @@ public class StationsView extends HBox {
     private VBox createStation(String name, javafx.scene.Node... controls) {
         VBox station = new VBox(5);
         station.setAlignment(Pos.CENTER);
-        station.setStyle("-fx-background-color: rgba(255, 255, 255, 0.85); -fx-padding: 8; -fx-background-radius: 8;");
+        station.setStyle("-fx-background-color: #D3D3D3; -fx-padding: 8; -fx-background-radius: 8;");
         Label label = new Label(name);
         label.setStyle("-fx-font-weight: bold; -fx-font-size: 11px;");
         station.getChildren().add(label);
@@ -144,9 +153,9 @@ public class StationsView extends HBox {
         Button[] buttons = new Button[BreadShape.values().length];
         for (int i = 0; i < buttons.length; i++) {
             BreadShape shape = BreadShape.values()[i];
-            buttons[i] = createImageButton("/assets/bun_" + shape.name().toLowerCase() + "_top.png", 30);
+            buttons[i] = createImageButton("/assets/bun_" + shape.name().toLowerCase() + "_top.png");
             buttons[i].setOnAction(event -> {
-                if (getCurrentStation() == 0) { // Corretto usando controller/getCurrentStation
+                if (getCurrentStation() == 0) {
                     controller.applyShape(shape);
                     triggerRefresh();
                 }
@@ -186,7 +195,7 @@ public class StationsView extends HBox {
     }
 
     private Button createIngredientBtn(StationController controller, IngredientType type, int requiredStation) {
-        Button button = createImageButton("/assets/ingredient_" + type.name().toLowerCase() + ".png", 28);
+        Button button = createImageButton("/assets/ingredient_" + type.name().toLowerCase() + ".png");
         button.setOnAction(event -> {
             if (getCurrentStation() == requiredStation) {
                 controller.addAddition(type);
@@ -196,12 +205,12 @@ public class StationsView extends HBox {
         return button;
     }
 
-    private Button createImageButton(String resourcePath, double height) {
+    private Button createImageButton(String resourcePath) {
         Button button = new Button();
         URL imageUrl = getClass().getResource(resourcePath);
         if (imageUrl != null) {
             ImageView imageView = new ImageView(new Image(imageUrl.toExternalForm()));
-            imageView.setFitHeight(height);
+            imageView.setFitHeight(50);
             imageView.setPreserveRatio(true);
             button.setGraphic(imageView);
         } else {
@@ -209,7 +218,7 @@ public class StationsView extends HBox {
                     .replace(".png", "").replace("ingredient_", "").replace("bun_", "_top");
             button.setText(name);
         }
-        button.setStyle("-fx-cursor: hand; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-radius: 4;");
+        button.setStyle("-fx-cursor: hand; -fx-background-color: #F5F5F5; -fx-border-color: #B0B0B0; -fx-border-radius: 4;");
         return button;
     }
 }

@@ -1,6 +1,7 @@
 package com.project.burger.view;
 
 import com.project.burger.controller.MainController;
+import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -24,6 +25,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+
         MainController controller = new MainController();
         OrderDisplayView orderDisplayView = new OrderDisplayView();
         BurgerView burgerView = new BurgerView();
@@ -39,6 +41,16 @@ public class MainApp extends Application {
         final Timeline[] timeline = new Timeline[1];
 
         Runnable refresh = () -> {
+
+            if (controller.getGameEngine().getCurrentBurgerCount() == 1 && timeSeconds[0] < 60) {
+                timeSeconds[0] = 60;
+                timerLabel.setText("Time left: 01:00");
+                if (timeline[0] != null) {
+                    timeline[0].playFromStart();
+                }
+            }
+
+            burgerView.moveConveyorTo(controller.getConveyorController().getCurrentStationIndex());
             burgerView.renderBurger(controller.getCurrentBurger());
             orderDisplayView.renderOrder(
                     controller.getGameEngine().getCurrentOrder(),
@@ -51,8 +63,7 @@ public class MainApp extends Application {
 
                 GameDialogView.show(primaryStage, controller.getGameEngine().getScoreStars(), () -> {
                     controller.handleStartGame();
-
-                    // RESETTA E RIAVVIA IL TIMER
+                    burgerView.moveConveyorTo(0);
                     timeSeconds[0] = 60;
                     timerLabel.setText("Time left: 01:00");
                     if (timeline[0] != null) timeline[0].playFromStart();
@@ -68,16 +79,18 @@ public class MainApp extends Application {
 
         StationsView stationsView = new StationsView(controller.getStationController(), controller.getConveyorController(), refresh);
 
-        Button previousButton = new Button("<");
-        previousButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 8 12; -fx-cursor: hand;");
+        Button previousButton = new Button("◀");
+        previousButton.setFocusTraversable(false);
+        previousButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 12 18; -fx-cursor: hand;");
         previousButton.setOnAction(event -> {
             controller.moveConveyorPrevious();
             burgerView.moveConveyorTo(controller.getConveyorController().getCurrentStationIndex());
             refresh.run();
         });
 
-        Button nextButton = new Button(">");
-        nextButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 8 12; -fx-cursor: hand;");
+        Button nextButton = new Button("▶");
+        nextButton.setFocusTraversable(false);
+        nextButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 12 18; -fx-cursor: hand;");
         nextButton.setOnAction(event -> {
             controller.moveConveyorNext();
             burgerView.moveConveyorTo(controller.getConveyorController().getCurrentStationIndex());
@@ -91,18 +104,41 @@ public class MainApp extends Application {
         BorderPane gameLayout = new BorderPane();
         gameLayout.setBackground(Background.EMPTY);
 
-        // Menu di Start Iniziale (Titolo + Pulsante centrale)
-        Label titleLabel = new Label("Purble Burger Fast Food");
-        titleLabel.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        // Menu di Start Iniziale
+        ImageView logoView = new ImageView();
+        URL logoUrl = getClass().getResource("/assets/logo.png");
+        if (logoUrl != null) {
+            logoView.setImage(new Image(logoUrl.toExternalForm()));
+        } else {
+            System.err.println("Immagine non trovata: /assets/logo.png");
+        }
+        logoView.setFitWidth(500); // Puoi regolare la larghezza del logo
+        logoView.setPreserveRatio(true);
 
-        Button startButton = new Button("Start Game");
-        startButton.setPrefSize(220, 60);
-        startButton.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-cursor: hand;");
+        Button startButton = new Button("Play");
+        startButton.setFocusTraversable(false);
+        startButton.setTranslateY(-80);
+        startButton.setPrefSize(300, 90);
+        startButton.setStyle("-fx-font-size: 30px; -fx-font-weight: bold; -fx-cursor: hand;" +
+                             "-fx-text-fill: white; -fx-background-color: #00E600; -fx-background-radius: 50;" +
+                             "-fx-border-color: white; -fx-border-width: 2px; -fx-border-radius: 50;");
 
-        VBox startMenuBox = new VBox(25, titleLabel, startButton);
+        startButton.setOnMouseEntered(event -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(150), startButton);
+            st.setToX(1.1); // Ingrandisce del 10% in larghezza
+            st.setToY(1.1); // Ingrandisce del 10% in altezza
+            st.play();
+        });
+
+        startButton.setOnMouseExited(event -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(150), startButton);
+            st.setToX(1.0); // Torna alla dimensione originale (100%)
+            st.setToY(1.0);
+            st.play();
+        });
+
+        VBox startMenuBox = new VBox(0, logoView, startButton);
         startMenuBox.setAlignment(Pos.CENTER);
-        startMenuBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.9); -fx-padding: 40; -fx-background-radius: 15;");
-        startMenuBox.setMaxSize(500, 250);
 
         gameLayout.setCenter(startMenuBox);
 
@@ -128,16 +164,15 @@ public class MainApp extends Application {
 
             // ----- DISPLAY DELL'ORDINE -----
             // in basso a sinistra dentro l'immagine
-            orderDisplayView.setMaxSize(200, 90);
+            orderDisplayView.setMaxSize(200, 80);
             orderDisplayView.setLayoutX(5);
-            orderDisplayView.setLayoutY(350);
+            orderDisplayView.setLayoutY(340);
 
             // ----- GRUPPO STAZIONI + FRECCE -----
-            // Al centro sulla superficie del banco
             HBox stationsWithArrows = new HBox(10, previousButton, stationsView, nextButton);
             stationsWithArrows.setAlignment(Pos.CENTER);
             stationsWithArrows.setLayoutX(270); // modifica la pos X sulla workbench
-            stationsWithArrows.setLayoutY(400); // Y su workbench
+            stationsWithArrows.setLayoutY(360); // Y su workbench
 
             // ----- DISPENSERS -----
             // Sopra il gruppo di bottoni delle stazioni
@@ -195,7 +230,6 @@ public class MainApp extends Application {
             burgerView.setLayoutY(252); // Aumenta il valore Y per abbassare
             // burgerView.animateConveyor(true);
 
-            // Aggiungo i controlli al gamePane (burgerView inserito PRIMA di stationsWithArrows)
             // ----- TIMER E TIMEOUT -----
             if (timeline[0] != null) timeline[0].stop(); // Evita timer doppi
 
@@ -209,6 +243,7 @@ public class MainApp extends Application {
                         int currentStars = controller.getGameEngine().getScoreStars();
                         GameDialogView.show(primaryStage, currentStars, () -> {
                             controller.handleStartGame();
+                            burgerView.moveConveyorTo(0);
                             timeSeconds[0] = 60;
                             timerLabel.setText("Time left: 01:00");
                             refresh.run();
