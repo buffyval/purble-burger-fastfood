@@ -47,6 +47,9 @@ public class BurgerView extends StackPane {
         setMinSize(BELT_WIDTH, 250);
         setMaxSize(BELT_WIDTH, 250);
 
+        this.setCache(true);
+        this.setCacheHint(javafx.scene.CacheHint.SPEED);
+
         Pane belt = createConveyorBelt();
         StackPane.setAlignment(belt, Pos.BOTTOM_CENTER);
 
@@ -189,10 +192,6 @@ public class BurgerView extends StackPane {
         return new StackPane(trayPolygon);
     }
 
-    /**
-     - Esegue l'animazione delle scanalature del nastro solo una volta per la distanza richiesta.
-
-     */
     public void animateConveyor(boolean forward) {
         if (beltTransition != null) {
             beltTransition.stop();

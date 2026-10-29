@@ -32,8 +32,7 @@ public class OrderDisplayTest extends Application {
                 BreadShape.CLASSIC,
                 ingredients,
                 false, // targetFries
-                null,  // targetSauce
-                null   // targetDrink
+                null  // targetSauce
         );
 
         // 3. Renderizziamo l'ordine nel display (punteggio a 5 stelle)
@@ -51,6 +50,7 @@ public class OrderDisplayTest extends Application {
         primaryStage.show();
     }
 
+    @SuppressWarnings("unused")
     public static void main(String[] args) {
         launch(args);
     }

@@ -11,10 +11,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 
 import java.net.URL;
 
@@ -22,6 +18,8 @@ public class StationsView extends HBox {
 
     private final Runnable refreshCallback;
     private final ConveyorController conveyorController;
+
+    private Runnable onRestartCallback;
 
     public StationsView(StationController stationController, ConveyorController conveyorController, Runnable refreshCallback) {
         this.refreshCallback = refreshCallback;
@@ -98,6 +96,8 @@ public class StationsView extends HBox {
         actionButtonsGroup.setStyle("-fx-background-color: rgba(255, 255, 255, 0.85); -fx-padding: 14 18; -fx-background-radius: 8;");
         getChildren().add(createStation("Actions", actionButtonsGroup));
     }
+
+    public void setOnRestartCallback(Runnable onRestartCallback) { this.onRestartCallback = onRestartCallback; }
     
     private VBox getActionButtonsGroup(StationController stationController) {
 
@@ -120,6 +120,10 @@ public class StationsView extends HBox {
         restartButton.setOnAction(event -> {
             stationController.restartGame();
             conveyorController.reset();
+            MainApp.isRestartRequested = true;
+            if (onRestartCallback != null) {
+                onRestartCallback.run();
+            }
             triggerRefresh();
         });
 
@@ -177,21 +181,6 @@ public class StationsView extends HBox {
                 createIngredientBtn(controller, IngredientType.CHEESE, 3),
                 createIngredientBtn(controller, IngredientType.PICKLES, 3)
         };
-    }
-
-    @SuppressWarnings("unused") // mi servirà in seguito!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    private javafx.scene.Node createDrinkDispenser() {
-        Rectangle dispenser = new Rectangle(42, 32, Color.DARKSLATEGRAY);
-        dispenser.setArcWidth(8);
-        dispenser.setArcHeight(8);
-        Rectangle nozzle = new Rectangle(12, 8, Color.LIGHTGRAY);
-        nozzle.setTranslateY(20);
-        Circle indicator = new Circle(4, Color.LIMEGREEN);
-        indicator.setTranslateY(-8);
-        StackPane graphic = new StackPane(dispenser, nozzle, indicator);
-        graphic.setMinSize(48, 58);
-        graphic.setMaxSize(48, 58);
-        return graphic;
     }
 
     private Button createIngredientBtn(StationController controller, IngredientType type, int requiredStation) {

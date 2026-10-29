@@ -31,7 +31,6 @@ public class GameEngine {
         }
 
         if (currentBurgerCount >= MAX_BURGERS) {
-            currentBurgerCount = MAX_BURGERS; // da togliere?
             state = GameState.GAME_OVER;
         } else {
             currentBurgerCount++;
@@ -39,7 +38,6 @@ public class GameEngine {
         }
     }
 
-    @SuppressWarnings("unused") // questo metodo in realtà viene utilizzato
     public GameState getState() {
         return state;
     }

@@ -11,7 +11,12 @@ public enum BreadShape {
         this.displayName = displayName;
     }
 
-    @SuppressWarnings("unused") // potrebbe essere utile in futuro
+    /**
+     * Returns the display name of the bread shape.
+     *
+     * @return the display name
+     */
+    @SuppressWarnings("unused")
     public String getDisplayName() {
         return displayName;
     }

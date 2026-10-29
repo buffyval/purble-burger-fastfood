@@ -36,24 +36,6 @@ public class MainController {
         orderCompletedAtDrinks = false;
     }
 
-    /*
-    public void handleDeliverBurger(BurgerView burgerView, Runnable refreshUI) {
-        // 1. Invia il panino al GameEngine per calcolare il punteggio
-        gameEngine.submitBurger(currentBurger);
-
-        // 2. Avvia l'animazione del pacchetto per 2 secondi
-        burgerView.showDeliveryPackage(() -> {
-            // Questa callback viene eseguita DOPO i 2 secondi:
-            if (gameEngine.getState() == GameState.PLAYING) {
-                this.currentBurger = new Burger();
-                conveyorController.reset(); // Riporta l'indice del nastro alla Stazione 0
-            }
-            // Aggiorna la schermata (Order #X incrementato e vassoio pulito)
-            refreshUI.run();
-        });
-    }
-    * */
-
     public GameEngine getGameEngine() {
         return gameEngine;
     }

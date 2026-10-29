@@ -10,15 +10,13 @@ public class Order {
     private final List<IngredientType> targetIngredients;
     private final boolean targetFries;
     private final IngredientType targetSauce;
-    private final DrinkType targetDrink;
 
     public Order(BreadShape targetShape, List<IngredientType> targetIngredients,
-                 boolean targetFries, IngredientType targetSauce, DrinkType targetDrink) {
+                 boolean targetFries, IngredientType targetSauce) {
         this.targetShape = targetShape;
         this.targetIngredients = new ArrayList<>(targetIngredients);
         this.targetFries = targetFries;
         this.targetSauce = targetSauce;
-        this.targetDrink = targetDrink;
     }
 
     public BreadShape getTargetShape() {
@@ -34,10 +32,6 @@ public class Order {
     }
 
     public IngredientType getTargetSauce() { return targetSauce; }
-
-    public DrinkType getTargetDrink() {
-        return targetDrink;
-    }
 
     public boolean matches(Burger burger) {
         if (burger == null) return false;
@@ -86,10 +80,10 @@ public class Order {
                 && sauceMatches;
     }
 
-    /**
+    /*
      * Helper per verificare se due liste contengono gli stessi identici elementi
      * (stessi elementi e stesse quantità), ignorando l'ordine degli elementi.
-     */
+
     private boolean hasSameIngredients(List<IngredientType> list1, List<IngredientType> list2) {
         if (list1 == null || list2 == null || list1.size() != list2.size()) {
             return false;
@@ -98,4 +92,5 @@ public class Order {
         List<IngredientType> sorted2 = list2.stream().sorted().toList();
         return sorted1.equals(sorted2);
     }
+    */
 }

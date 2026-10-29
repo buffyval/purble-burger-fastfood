@@ -23,13 +23,14 @@ public class MainApp extends Application {
     private static final double GAME_WIDTH = 1000;
     private static final double GAME_HEIGHT = 700;
 
+    public static boolean isRestartRequested = false;
+
     @Override
     public void start(Stage primaryStage) {
 
         MainController controller = new MainController();
         OrderDisplayView orderDisplayView = new OrderDisplayView();
         BurgerView burgerView = new BurgerView();
-        ChefView chefView = new ChefView();
 
         Label timerLabel = new Label("Time left: 01:00");
         timerLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #D32F2F; " +
@@ -42,12 +43,13 @@ public class MainApp extends Application {
 
         Runnable refresh = () -> {
 
-            if (controller.getGameEngine().getCurrentBurgerCount() == 1 && timeSeconds[0] < 60) {
+            if (isRestartRequested) {
                 timeSeconds[0] = 60;
                 timerLabel.setText("Time left: 01:00");
                 if (timeline[0] != null) {
                     timeline[0].playFromStart();
                 }
+                isRestartRequested = false;
             }
 
             burgerView.moveConveyorTo(controller.getConveyorController().getCurrentStationIndex());
@@ -78,6 +80,14 @@ public class MainApp extends Application {
         };
 
         StationsView stationsView = new StationsView(controller.getStationController(), controller.getConveyorController(), refresh);
+
+        stationsView.setOnRestartCallback(() -> {
+            timeSeconds[0] = 60;
+            timerLabel.setText("Time left: 01:00");
+            if (timeline[0] != null) {
+                timeline[0].playFromStart();
+            }
+        });
 
         Button previousButton = new Button("◀");
         previousButton.setFocusTraversable(false);
@@ -222,13 +232,9 @@ public class MainApp extends Application {
             dispensersBox.setLayoutX(167); // aumenta per spostare a destra
             dispensersBox.setLayoutY(30); // aumenta per spostare in basso
 
-            // ----- CHEF + CONVEYOR -----
-            chefView.setLayoutX(30);
-            chefView.setLayoutY(360); // Sposta lo chef più in basso se necessario
-
+            // ----- CONVEYOR -----
             burgerView.setLayoutX(100); // Aumenta per spostare a destra
             burgerView.setLayoutY(252); // Aumenta il valore Y per abbassare
-            // burgerView.animateConveyor(true);
 
             // ----- TIMER E TIMEOUT -----
             if (timeline[0] != null) timeline[0].stop(); // Evita timer doppi
@@ -256,7 +262,7 @@ public class MainApp extends Application {
             timeline[0].play();
 
             // Aggiungo i controlli e la timerLabel al gamePane
-            gamePane.getChildren().addAll(timerLabel, orderDisplayView, dispensersBox, chefView, burgerView, stationsWithArrows);
+            gamePane.getChildren().addAll(timerLabel, orderDisplayView, dispensersBox, burgerView, stationsWithArrows);
             stationsWithArrows.toFront();
 
             // Inserisco il gamePane al centro della finestra

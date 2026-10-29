@@ -33,8 +33,7 @@ public class OrderDisplayBaguetteTest extends Application {
                 BreadShape.BAGUETTE,
                 baguetteIngredients,
                 false, // targetFries
-                null,  // targetSauce
-                null   // targetDrink
+                null  // targetSauce
         );
 
         // 3. Renderizziamo l'ordine nell'anteprima (punteggio 5 stelle)
